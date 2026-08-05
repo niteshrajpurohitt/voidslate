@@ -1,0 +1,433 @@
+import React, { useRef, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
+
+export type ShredMode = "SHRED" | "BURN" | "DUST";
+
+interface DisplayScreenProps {
+  text: string;
+  setText: (val: string) => void;
+  isProcessing: boolean;
+  activeMode: ShredMode;
+  maxChars?: number;
+  onAnimationComplete: () => void;
+  onKeypressSound?: () => void;
+}
+
+interface StripParticle {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  vy: number;
+  vx: number;
+  gravity: number;
+  rotation: number;
+  vr: number;
+  opacity: number;
+  canvasSlice: HTMLCanvasElement;
+}
+
+interface EmberParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  alpha: number;
+  maxLife: number;
+  life: number;
+  color: string;
+}
+
+interface DustParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  alpha: number;
+  decay: number;
+}
+
+export const DisplayScreen: React.FC<DisplayScreenProps> = ({
+  text,
+  setText,
+  isProcessing,
+  activeMode,
+  maxChars = 500,
+  onAnimationComplete,
+  onKeypressSound,
+}) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animFrameRef = useRef<number | null>(null);
+
+  // Handle typing & keypress audio
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (isProcessing) return;
+    const val = e.target.value;
+    if (val.length <= maxChars) {
+      setText(val);
+      if (onKeypressSound) {
+        onKeypressSound();
+      }
+    }
+  };
+
+  // Helper to wrap text for canvas rendering matching textarea
+  const renderTextToCanvasCtx = useCallback(
+    (
+      ctx: CanvasRenderingContext2D,
+      content: string,
+      width: number,
+      height: number,
+    ) => {
+      ctx.clearRect(0, 0, width, height);
+      ctx.font = '600 18px "Inter", sans-serif';
+      ctx.fillStyle = "rgb(250, 250, 249)";
+      ctx.textBaseline = "top";
+
+      const padding = 24;
+      const maxWidth = width - padding * 2;
+      const lineHeight = 28;
+
+      // Simple word wrapping
+      const paragraphs = content.split("\n");
+      let currentY = padding;
+
+      for (const paragraph of paragraphs) {
+        const words = paragraph.split(" ");
+        let currentLine = "";
+
+        for (let i = 0; i < words.length; i++) {
+          const testLine = currentLine
+            ? `${currentLine} ${words[i]}`
+            : words[i];
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxWidth && i > 0) {
+            ctx.fillText(currentLine, padding, currentY);
+            currentLine = words[i];
+            currentY += lineHeight;
+          } else {
+            currentLine = testLine;
+          }
+        }
+        ctx.fillText(currentLine, padding, currentY);
+        currentY += lineHeight;
+      }
+    },
+    [],
+  );
+
+  // Main Canvas Animation Trigger
+  useEffect(() => {
+    if (!isProcessing || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Fit canvas resolution to displayed client rect
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    // Create an offscreen buffer canvas to draw the initial text snapshot
+    const bufferCanvas = document.createElement("canvas");
+    bufferCanvas.width = canvas.width;
+    bufferCanvas.height = canvas.height;
+    const bufferCtx = bufferCanvas.getContext("2d");
+    if (!bufferCtx) return;
+
+    renderTextToCanvasCtx(bufferCtx, text, canvas.width, canvas.height);
+
+    let startTime: number | null = null;
+
+    // --- MODE 1: SHREDDING ANIMATION ---
+    if (activeMode === "SHRED") {
+      const stripWidth = 8;
+      const strips: StripParticle[] = [];
+
+      for (let x = 0; x < canvas.width; x += stripWidth) {
+        // Slice the offscreen buffer into individual vertical strip canvases
+        const sliceCanvas = document.createElement("canvas");
+        sliceCanvas.width = stripWidth;
+        sliceCanvas.height = canvas.height;
+        const sliceCtx = sliceCanvas.getContext("2d");
+        if (sliceCtx) {
+          sliceCtx.drawImage(
+            bufferCanvas,
+            x,
+            0,
+            stripWidth,
+            canvas.height,
+            0,
+            0,
+            stripWidth,
+            canvas.height,
+          );
+        }
+
+        strips.push({
+          x,
+          y: 0,
+          width: stripWidth,
+          height: canvas.height,
+          vy: Math.random() * 2,
+          vx: (Math.random() - 0.5) * 1.5,
+          gravity: 0.35 + Math.random() * 0.2,
+          rotation: 0,
+          vr: (Math.random() - 0.5) * 0.04,
+          opacity: 1.0,
+          canvasSlice: sliceCanvas,
+        });
+      }
+
+      const animateShred = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        let activeStrips = 0;
+        for (const strip of strips) {
+          strip.y += strip.vy;
+          strip.x += strip.vx;
+          strip.vy += strip.gravity;
+          strip.rotation += strip.vr;
+
+          if (strip.y > 40) {
+            strip.opacity -= 0.012;
+          }
+
+          if (strip.opacity > 0 && strip.y < canvas.height + 50) {
+            activeStrips++;
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, strip.opacity);
+            ctx.translate(
+              strip.x + strip.width / 2,
+              strip.y + strip.height / 2,
+            );
+            ctx.rotate(strip.rotation);
+            ctx.drawImage(
+              strip.canvasSlice,
+              -strip.width / 2,
+              -strip.height / 2,
+            );
+            ctx.restore();
+          }
+        }
+
+        if (activeStrips > 0 && elapsed < 2200) {
+          animFrameRef.current = requestAnimationFrame(animateShred);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          onAnimationComplete();
+        }
+      };
+
+      animFrameRef.current = requestAnimationFrame(animateShred);
+    }
+
+    // --- MODE 2: BURN ANIMATION ---
+    else if (activeMode === "BURN") {
+      const imgData = bufferCtx.getImageData(0, 0, canvas.width, canvas.height);
+      const embers: EmberParticle[] = [];
+
+      // Sample non-transparent pixels to create burning embers
+      const step = 4;
+      for (let y = 0; y < canvas.height; y += step) {
+        for (let x = 0; x < canvas.width; x += step) {
+          const index = (y * canvas.width + x) * 4;
+          const alpha = imgData.data[index + 3];
+          if (alpha > 40) {
+            embers.push({
+              x,
+              y,
+              vx: (Math.random() - 0.5) * 1.8,
+              vy: -(1.2 + Math.random() * 2.5),
+              size: 2 + Math.random() * 3,
+              alpha: 1.0,
+              maxLife: 40 + Math.random() * 50,
+              life: 0,
+              color: Math.random() > 0.4 ? "#86efac" : "rgb(250, 250, 2)",
+            });
+          }
+        }
+      }
+
+      const animateBurn = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw initial text with glowing heat effect for the first 400ms
+        if (elapsed < 500) {
+          ctx.save();
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = "#86efac";
+          ctx.drawImage(bufferCanvas, 0, 0);
+          ctx.restore();
+        }
+
+        let activeEmbers = 0;
+        for (const p of embers) {
+          if (elapsed < 200 && Math.random() > 0.5) continue; // staggered start
+
+          p.life++;
+          p.x += p.vx + Math.sin(p.life * 0.1) * 0.8; // sinuous heat sway
+          p.y += p.vy;
+          p.alpha = 1 - p.life / p.maxLife;
+
+          if (p.life < p.maxLife && p.alpha > 0) {
+            activeEmbers++;
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, p.alpha);
+            ctx.fillStyle = p.color;
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = "rgba(255,255,255,0.12)";
+            ctx.beginPath();
+            ctx.arc(
+              p.x,
+              p.y,
+              p.size * (1 - (p.life / p.maxLife) * 0.5),
+              0,
+              Math.PI * 2,
+            );
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+
+        if (activeEmbers > 0 && elapsed < 2400) {
+          animFrameRef.current = requestAnimationFrame(animateBurn);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          onAnimationComplete();
+        }
+      };
+
+      animFrameRef.current = requestAnimationFrame(animateBurn);
+    }
+
+    // --- MODE 3: DUST ANIMATION ---
+    else if (activeMode === "DUST") {
+      const imgData = bufferCtx.getImageData(0, 0, canvas.width, canvas.height);
+      const dust: DustParticle[] = [];
+
+      const step = 3;
+      for (let y = 0; y < canvas.height; y += step) {
+        for (let x = 0; x < canvas.width; x += step) {
+          const index = (y * canvas.width + x) * 4;
+          const alpha = imgData.data[index + 3];
+          if (alpha > 40) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 0.8 + Math.random() * 3.5;
+            dust.push({
+              x,
+              y,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              size: 2,
+              alpha: 1.0,
+              decay: 0.015 + Math.random() * 0.02,
+            });
+          }
+        }
+      }
+
+      const animateDust = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        let activeDust = 0;
+        for (const p of dust) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= 0.94; // air resistance
+          p.vy *= 0.94;
+          p.alpha -= p.decay;
+
+          if (p.alpha > 0) {
+            activeDust++;
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, p.alpha);
+            ctx.fillStyle = "rgb(250, 250, 249)";
+            // Crisp pixel dust square
+            ctx.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
+            ctx.restore();
+          }
+        }
+
+        if (activeDust > 0 && elapsed < 2000) {
+          animFrameRef.current = requestAnimationFrame(animateDust);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          onAnimationComplete();
+        }
+      };
+
+      animFrameRef.current = requestAnimationFrame(animateDust);
+    }
+
+    return () => {
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+      }
+    };
+  }, [
+    isProcessing,
+    activeMode,
+    text,
+    renderTextToCanvasCtx,
+    onAnimationComplete,
+  ]);
+
+  return (
+    <div className="relative w-full max-w-full min-w-0 flex-none h-56 min-h-56 rounded-lg border border-zinc-800 bg-[linear-gradient(180deg,#101113_0%,#08090a_100%)] shadow-[0_8px_18px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-8px_14px_rgba(0,0,0,0.58)] overflow-hidden select-none mb-6 sm:h-72">
+      {/* Subtle Scanlines overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-100"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 1) 100%)",
+          backgroundSize: "100% 4px",
+        }}
+      />
+
+      {/* Glass Glare Reflection */}
+      <div className="absolute inset-0 pointer-events-none z-10 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.09),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.09),transparent_42%)]" />
+
+      {/* Text Area Input (Hidden during processing) */}
+      <motion.textarea
+        ref={textareaRef}
+        value={text}
+        onChange={handleChange}
+        disabled={isProcessing}
+        placeholder="Type your vent here..."
+        initial={false}
+        animate={{
+          opacity: isProcessing ? 0 : 1,
+        }}
+        transition={{ duration: 0.15, ease: "easeOut" }}
+        className={`w-full min-w-0 h-full p-4 bg-transparent text-amber-50 font-mono-hardware text-base sm:p-6 sm:text-lg md:text-xl font-bold tracking-wide leading-relaxed resize-none outline-none border-none caret-stone-50 placeholder-zinc-400/50 relative z-0 ${
+          isProcessing ? "pointer-events-none" : ""
+        }`}
+        rows={6}
+        maxLength={maxChars}
+        spellCheck={false}
+      />
+
+      {/* HTML5 Canvas overlay for destruction animation */}
+      <canvas
+        ref={canvasRef}
+        className={`absolute inset-0 w-full min-w-0 h-full pointer-events-none z-20 ${
+          isProcessing ? "block" : "hidden"
+        }`}
+      />
+    </div>
+  );
+};
