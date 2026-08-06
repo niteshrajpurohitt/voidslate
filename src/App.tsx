@@ -1,5 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useTransform,
+  useSpring,
+} from "framer-motion";
 import { Header } from "./components/Header";
 import { DisplayScreen, type ShredMode } from "./components/DisplayScreen";
 import { Controls } from "./components/Controls";
@@ -15,6 +21,39 @@ export function App() {
   const [activeMode, setActiveMode] = useState<ShredMode>("SHRED");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isScreenSettled, setIsScreenSettled] = useState<boolean>(false);
+
+  // Subtle 3D Parallax Tilt for Console Chassis on Hover
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rotateXSpring = useSpring(
+    useTransform(mouseY, [-0.5, 0.5], [3, -3]),
+    { stiffness: 180, damping: 24 }
+  );
+  const rotateYSpring = useSpring(
+    useTransform(mouseX, [-0.5, 0.5], [-3, 3]),
+    { stiffness: 180, damping: 24 }
+  );
+
+  const handleChassisMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const chassis = document.getElementById("chassis-frame");
+    if (chassis && chassis.contains(e.target as Node)) {
+      mouseX.set(0);
+      mouseY.set(0);
+      return;
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - (rect.left + rect.width / 2)) / rect.width;
+    const y = (e.clientY - (rect.top + rect.height / 2)) / rect.height;
+    mouseX.set(x);
+    mouseY.set(y);
+  };
+
+  const handleChassisMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
 
   // Sync viewMode with browser history using modern HTML5 pushState (Clean URL)
   useEffect(() => {
@@ -110,39 +149,52 @@ export function App() {
           key="landing"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.35 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
           className="w-full min-h-screen"
         >
           <LandingView
-            onStart={() => {
-              playSpringTension();
-              handleStartDevice();
-            }}
-            onSoundEffect={playSpringTension}
+            onStart={handleStartDevice}
           />
         </motion.div>
       ) : (
         <motion.div
           key="console"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          initial={{ opacity: 0, filter: "blur(4px)" }}
+          animate={{ opacity: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, filter: "blur(4px)" }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+          onMouseMove={handleChassisMouseMove}
+          onMouseLeave={handleChassisMouseLeave}
           className="relative min-h-screen w-full overflow-hidden flex items-center justify-center px-2 py-3 sm:px-4 sm:py-8 select-none [perspective:1400px]"
         >
 
-          {/* Tabletop Chassis Frame (Exact Original Styling & Layout) */}
+          {/* Tabletop Chassis Frame (Exact Original Styling & Layout with Subtle 3D Tilt) */}
           <motion.div
+            id="chassis-frame"
             className="relative w-full max-w-[42rem] min-w-0 flex-none box-border rounded-[1.25rem] border-2 border-zinc-950 bg-[linear-gradient(180deg,#c2b6a3_0%,#e3d8c5_22%,#baa993_100%)] p-5 sm:p-6 md:p-8"
             animate={{
               scale: isProcessing ? 0.9 : 1,
             }}
+            style={{
+              rotateX: rotateXSpring,
+              rotateY: rotateYSpring,
+            }}
             transition={{
-              duration: 0.3,
+              duration: 0.25,
               ease: [0.16, 1, 0.3, 1],
             }}
           >
+            {/* Blurrable Chassis Hardware Layer (Screws, Header, Controls) */}
+            <motion.div
+              animate={{
+                filter: isProcessing ? "blur(3.5px)" : "blur(0px)",
+                opacity: isProcessing ? 0.85 : 1,
+              }}
+              transition={{ duration: 0.25 }}
+              className="pointer-events-none absolute inset-0 rounded-[1.25rem]"
+            />
+
             <div className="pointer-events-none absolute inset-[0.45rem] rounded-[0.95rem] border border-black/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.24),inset_0_-1px_0_rgba(0,0,0,0.14)]" />
 
             <div
@@ -155,28 +207,39 @@ export function App() {
             />
 
             {/* Screw / Fastener Accents on Chassis Corners */}
-            <div className="pointer-events-none absolute top-3 left-3 w-2.5 h-2.5 rounded-full bg-stone-400 border border-zinc-700 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_1px_2px_rgba(0,0,0,0.4)]">
-              <div className="w-1.5 h-[1.5px] bg-zinc-800 rotate-45" />
-            </div>
+            <motion.div
+              animate={{ filter: isProcessing ? "blur(3px)" : "blur(0px)" }}
+              transition={{ duration: 0.25 }}
+              className="contents"
+            >
+              <div className="pointer-events-none absolute top-3 left-3 w-2.5 h-2.5 rounded-full bg-stone-400 border border-zinc-700 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_1px_2px_rgba(0,0,0,0.4)]">
+                <div className="w-1.5 h-[1.5px] bg-zinc-800 rotate-45" />
+              </div>
 
-            <div className="pointer-events-none absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-stone-400 border border-zinc-700 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_1px_2px_rgba(0,0,0,0.4)]">
-              <div className="w-1.5 h-[1.5px] bg-zinc-800 -rotate-12" />
-            </div>
+              <div className="pointer-events-none absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-stone-400 border border-zinc-700 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_1px_2px_rgba(0,0,0,0.4)]">
+                <div className="w-1.5 h-[1.5px] bg-zinc-800 -rotate-12" />
+              </div>
 
-            <div className="pointer-events-none absolute bottom-3 left-3 w-2.5 h-2.5 rounded-full bg-stone-400 border border-zinc-700 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_1px_2px_rgba(0,0,0,0.4)]">
-              <div className="w-1.5 h-[1.5px] bg-zinc-800 rotate-12" />
-            </div>
+              <div className="pointer-events-none absolute bottom-3 left-3 w-2.5 h-2.5 rounded-full bg-stone-400 border border-zinc-700 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_1px_2px_rgba(0,0,0,0.4)]">
+                <div className="w-1.5 h-[1.5px] bg-zinc-800 rotate-12" />
+              </div>
 
-            <div className="pointer-events-none absolute bottom-3 right-3 w-2.5 h-2.5 rounded-full bg-stone-400 border border-zinc-700 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_1px_2px_rgba(0,0,0,0.4)]">
-              <div className="w-1.5 h-[1.5px] bg-zinc-800 -rotate-45" />
-            </div>
+              <div className="pointer-events-none absolute bottom-3 right-3 w-2.5 h-2.5 rounded-full bg-stone-400 border border-zinc-700 flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_1px_2px_rgba(0,0,0,0.4)]">
+                <div className="w-1.5 h-[1.5px] bg-zinc-800 -rotate-45" />
+              </div>
+            </motion.div>
 
-            {/* 1. Header Component */}
-            <Header />
+            {/* 1. Header Component with Blur effect on execute */}
+            <motion.div
+              animate={{ filter: isProcessing ? "blur(3px)" : "blur(0px)" }}
+              transition={{ duration: 0.25 }}
+            >
+              <Header />
+            </motion.div>
 
             {/* Clean Milled Display Frame (Slot holding the Card Display) */}
             <div className="relative rounded-lg border border-black/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.6)] p-0.5">
-              {/* Floating Screen Card */}
+              {/* Floating Screen Card (STAYS 100% SHARP - ZERO BLUR) */}
               <motion.div
                 className="w-full relative z-40"
                 animate={{
@@ -187,7 +250,7 @@ export function App() {
                     : "0 1px 2px rgba(0,0,0,0.1)",
                 }}
                 transition={{
-                  duration: 0.45,
+                  duration: 0.28,
                   ease: [0.16, 1, 0.3, 1],
                 }}
                 onAnimationComplete={() => {
@@ -209,16 +272,21 @@ export function App() {
               </motion.div>
             </div>
 
-            {/* 3. Controls Component */}
-            <Controls
-              activeMode={activeMode}
-              setActiveMode={setActiveMode}
-              onExecute={handleExecute}
-              isProcessing={isProcessing}
-              hasText={text.trim().length > 0}
-              onModeClickSound={playKeyClick}
-              onActionClickSound={playSpringTension}
-            />
+            {/* 3. Controls Component (Blurs when card pops out into focus) */}
+            <motion.div
+              animate={{ filter: isProcessing ? "blur(3.5px)" : "blur(0px)" }}
+              transition={{ duration: 0.25 }}
+            >
+              <Controls
+                activeMode={activeMode}
+                setActiveMode={setActiveMode}
+                onExecute={handleExecute}
+                isProcessing={isProcessing}
+                hasText={text.trim().length > 0}
+                onModeClickSound={playKeyClick}
+                onActionClickSound={playSpringTension}
+              />
+            </motion.div>
           </motion.div>
         </motion.div>
       )}

@@ -399,7 +399,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
         value={text}
         onChange={handleChange}
         disabled={isProcessing}
-        placeholder="Type your vent here..."
+        placeholder="Start typing here..."
         initial={false}
         animate={{
           opacity: isProcessing && isScreenSettled ? 0 : 1,

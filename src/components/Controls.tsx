@@ -51,7 +51,11 @@ export const Controls: React.FC<ControlsProps> = ({
   const handleActionClick = () => {
     if (isProcessing || !hasText) return;
     onActionClickSound();
-    onExecute();
+    
+    // 100ms tactile keypress delay so keycap visibly depresses on touch screens before execution
+    setTimeout(() => {
+      onExecute();
+    }, 100);
   };
 
   return (
