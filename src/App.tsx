@@ -57,11 +57,18 @@ export function App() {
 
   // Sync viewMode with browser history using modern HTML5 pushState (Clean URL)
   useEffect(() => {
-    // Clear any legacy hash from the address bar
+    // Immediately strip any # or hash from the URL address bar
     if (window.location.hash) {
-      window.history.replaceState(null, "", window.location.pathname === "/device" ? "/device" : "/");
+      const cleanPath = window.location.pathname === "/device" ? "/device" : "/";
+      window.history.replaceState(
+        { view: window.location.pathname === "/device" ? "CONSOLE" : "LANDING" },
+        "",
+        cleanPath
+      );
     }
+  });
 
+  useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
       if (event.state?.view === "CONSOLE" || window.location.pathname === "/device") {
         setViewMode("CONSOLE");
@@ -144,15 +151,15 @@ export function App() {
         />
       </div>
 
-      {/* Floating Audio Control Pill (Rendered ONLY on CONSOLE View) */}
+      {/* Floating Audio Control Button (Clean Rectangular Keycap) */}
       {viewMode === "CONSOLE" && (
         <div className="fixed top-4 right-4 z-50 select-none">
           <button
             onClick={toggleMute}
             title={isMuted ? "Unmute Audio" : "Mute Audio"}
-            className="group relative inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-stone-800/90 bg-stone-950/85 hover:bg-stone-900 text-stone-300 hover:text-stone-100 font-sans text-xs shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-all duration-150 cursor-pointer backdrop-blur-md active:scale-95"
+            className="group relative inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-stone-800/90 bg-stone-950/85 hover:bg-stone-900 text-stone-300 hover:text-stone-100 font-sans text-xs shadow-md transition-all duration-150 cursor-pointer backdrop-blur-md active:scale-95"
           >
-            <div className={`w-1.5 h-1.5 rounded-lg transition-colors duration-200 ${isMuted ? "bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)]" : "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"}`} />
+            <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${isMuted ? "bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)]" : "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"}`} />
             <span className="font-bold tracking-wider uppercase text-[10px]">
               {isMuted ? "SOUND OFF" : "SOUND ON"}
             </span>
@@ -190,7 +197,7 @@ export function App() {
           {/* Tabletop Chassis Frame (Exact Original Styling & Layout with Subtle 3D Tilt) */}
           <motion.div
             id="chassis-frame"
-            className="relative w-full max-w-[42rem] min-w-0 flex-none box-border rounded-[1.25rem] border-2 border-zinc-950 bg-[linear-gradient(180deg,#c2b6a3_0%,#e3d8c5_22%,#baa993_100%)] p-5 sm:p-6 md:p-8"
+            className="relative w-full max-w-[42rem] min-w-0 flex-none box-border rounded-[1.25rem] border-2 border-zinc-950 bg-[linear-gradient(180deg,#ab9d87_0%,#c9bc9e_22%,#a09077_100%)] p-5 sm:p-6 md:p-8"
             animate={{
               scale: isProcessing ? 0.9 : 1,
             }}
