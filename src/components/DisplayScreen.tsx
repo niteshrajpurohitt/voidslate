@@ -14,17 +14,16 @@ interface DisplayScreenProps {
   onKeypressSound?: () => void;
 }
 
-interface StripParticle {
+interface MeltParticle {
   x: number;
   y: number;
   width: number;
   height: number;
   vy: number;
   vx: number;
-  gravity: number;
-  rotation: number;
-  vr: number;
+  stretchY: number;
   opacity: number;
+  glow: number;
   canvasSlice: HTMLCanvasElement;
 }
 
@@ -137,15 +136,14 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
 
     let startTime: number | null = null;
 
-    // --- MODE 1: SHREDDING ANIMATION ---
+    // --- MODE 1: SHRED ANIMATION ---
     if (activeMode === "SHRED") {
-      const stripWidth = 8;
-      const strips: StripParticle[] = [];
+      const sliceWidth = 5;
+      const strips: MeltParticle[] = [];
 
-      for (let x = 0; x < canvas.width; x += stripWidth) {
-        // Slice the offscreen buffer into individual vertical strip canvases
+      for (let x = 0; x < canvas.width; x += sliceWidth) {
         const sliceCanvas = document.createElement("canvas");
-        sliceCanvas.width = stripWidth;
+        sliceCanvas.width = sliceWidth;
         sliceCanvas.height = canvas.height;
         const sliceCtx = sliceCanvas.getContext("2d");
         if (sliceCtx) {
@@ -153,11 +151,11 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
             bufferCanvas,
             x,
             0,
-            stripWidth,
+            sliceWidth,
             canvas.height,
             0,
             0,
-            stripWidth,
+            sliceWidth,
             canvas.height,
           );
         }
@@ -165,14 +163,13 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
         strips.push({
           x,
           y: 0,
-          width: stripWidth,
+          width: sliceWidth,
           height: canvas.height,
-          vy: Math.random() * 2,
-          vx: (Math.random() - 0.5) * 1.5,
-          gravity: 0.35 + Math.random() * 0.2,
-          rotation: 0,
-          vr: (Math.random() - 0.5) * 0.04,
+          vy: 0.8 + Math.random() * 1.5,
+          vx: (Math.random() - 0.5) * 0.4,
+          stretchY: 1.0,
           opacity: 1.0,
+          glow: 0,
           canvasSlice: sliceCanvas,
         });
       }
@@ -185,34 +182,28 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
 
         let activeStrips = 0;
         for (const strip of strips) {
+          // Fall downward immediately with positive velocity
+          strip.vy += 0.1; // downward gravity acceleration
           strip.y += strip.vy;
-          strip.x += strip.vx;
-          strip.vy += strip.gravity;
-          strip.rotation += strip.vr;
 
-          if (strip.y > 40) {
-            strip.opacity -= 0.012;
+          if (strip.y > 30) {
+            strip.opacity -= 0.02;
           }
 
-          if (strip.opacity > 0 && strip.y < canvas.height + 50) {
+          if (strip.opacity > 0 && strip.y < canvas.height + 40) {
             activeStrips++;
             ctx.save();
             ctx.globalAlpha = Math.max(0, strip.opacity);
-            ctx.translate(
-              strip.x + strip.width / 2,
-              strip.y + strip.height / 2,
-            );
-            ctx.rotate(strip.rotation);
             ctx.drawImage(
               strip.canvasSlice,
-              -strip.width / 2,
-              -strip.height / 2,
+              strip.x,
+              strip.y,
             );
             ctx.restore();
           }
         }
 
-        if (activeStrips > 0 && elapsed < 2200) {
+        if (activeStrips > 0 && elapsed < 2000) {
           animFrameRef.current = requestAnimationFrame(animateShred);
         } else {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -223,28 +214,32 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
       animFrameRef.current = requestAnimationFrame(animateShred);
     }
 
-    // --- MODE 2: BURN ANIMATION ---
+    // --- MODE 2: BURN ANIMATION (Fiery Flame & Ember Dissolve) ---
     else if (activeMode === "BURN") {
       const imgData = bufferCtx.getImageData(0, 0, canvas.width, canvas.height);
       const embers: EmberParticle[] = [];
 
+      // Realistic fire palette generator
+      const fireColors = ["#ffffff", "#fef08a", "#fbbf24", "#f97316", "#ef4444", "#dc2626"];
+
       // Sample non-transparent pixels to create burning embers
-      const step = 4;
+      const step = 3;
       for (let y = 0; y < canvas.height; y += step) {
         for (let x = 0; x < canvas.width; x += step) {
           const index = (y * canvas.width + x) * 4;
           const alpha = imgData.data[index + 3];
           if (alpha > 40) {
+            const colorIdx = Math.floor(Math.random() * fireColors.length);
             embers.push({
               x,
               y,
-              vx: (Math.random() - 0.5) * 1.8,
-              vy: -(1.2 + Math.random() * 2.5),
-              size: 2 + Math.random() * 3,
+              vx: (Math.random() - 0.5) * 2.2,
+              vy: -(1.5 + Math.random() * 3.0),
+              size: 1.8 + Math.random() * 3.5,
               alpha: 1.0,
-              maxLife: 40 + Math.random() * 50,
+              maxLife: 45 + Math.random() * 55,
               life: 0,
-              color: Math.random() > 0.4 ? "#86efac" : "rgb(250, 250, 2)",
+              color: fireColors[colorIdx],
             });
           }
         }
@@ -256,21 +251,21 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Draw initial text with glowing heat effect for the first 400ms
+        // Draw initial text with intense fiery orange/white heat glow for the first 500ms
         if (elapsed < 500) {
           ctx.save();
-          ctx.shadowBlur = 12;
-          ctx.shadowColor = "#86efac";
+          ctx.shadowBlur = 18;
+          ctx.shadowColor = "#f97316";
           ctx.drawImage(bufferCanvas, 0, 0);
           ctx.restore();
         }
 
         let activeEmbers = 0;
         for (const p of embers) {
-          if (elapsed < 200 && Math.random() > 0.5) continue; // staggered start
+          if (elapsed < 180 && Math.random() > 0.4) continue; // staggered ignite start
 
           p.life++;
-          p.x += p.vx + Math.sin(p.life * 0.1) * 0.8; // sinuous heat sway
+          p.x += p.vx + Math.sin(p.life * 0.12) * 1.1; // realistic flickering heat sway
           p.y += p.vy;
           p.alpha = 1 - p.life / p.maxLife;
 
@@ -279,8 +274,8 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
             ctx.save();
             ctx.globalAlpha = Math.max(0, p.alpha);
             ctx.fillStyle = p.color;
-            ctx.shadowBlur = 6;
-            ctx.shadowColor = "rgba(255,255,255,0.12)";
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = p.color;
             ctx.beginPath();
             ctx.arc(
               p.x,
