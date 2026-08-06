@@ -1,11 +1,13 @@
 import { motion } from "framer-motion";
+import { NumberTicker } from "./NumberTicker";
 
 interface LandingViewProps {
   onStart: () => void;
   onSoundEffect?: () => void;
+  formattedCount?: string;
 }
 
-export function LandingView({ onStart, onSoundEffect }: LandingViewProps) {
+export function LandingView({ onStart, onSoundEffect, formattedCount = "0" }: LandingViewProps) {
   const handleStart = () => {
     if (onSoundEffect) onSoundEffect();
     onStart();
@@ -16,11 +18,20 @@ export function LandingView({ onStart, onSoundEffect }: LandingViewProps) {
 
       {/* Top Brand Bar */}
       <header className="relative z-10 w-full max-w-4xl flex items-center justify-between py-4">
-        {/* Left: VOID SLATE Logo */}
-        <div className="flex items-center gap-2.5">
-          <span className="font-sekuya text-base sm:text-lg tracking-widest uppercase">
-            <span className="text-emerald-600">VOID</span>{" "}
-            <span className="text-[#f4ebd0]">SLATE</span>
+        {/* Left: Stacked VOID SLATE Logo (VOID on top, SLATE below) */}
+        <div className="flex flex-col items-start leading-none font-sekuya text-base sm:text-lg md:text-xl tracking-widest uppercase select-none">
+          <span className="text-emerald-700 leading-none">VOID</span>
+          <span className="text-[#f4ebd0] leading-none mt-0.5">SLATE</span>
+        </div>
+
+        {/* Center: Counter Badge (Recessed Hardware Display Window with LED & Inter Font) */}
+        <div className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1 rounded-md border border-zinc-950 bg-[#070b09]/90 backdrop-blur-md text-xs text-stone-300 font-sans tracking-wider shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.9),0_1px_0_rgba(255,255,255,0.12)] absolute left-1/2 -translate-x-1/2">
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.85)] animate-pulse" />
+          <span>
+            <span className="text-[#f4ebd0] font-bold">
+              <NumberTicker value={formattedCount} />
+            </span>{" "}
+            thoughts let go and counting
           </span>
         </div>
 
@@ -106,8 +117,6 @@ export function LandingView({ onStart, onSoundEffect }: LandingViewProps) {
               className="group relative overflow-hidden inline-flex items-center justify-center px-10 py-3.5 rounded border border-zinc-900 font-sans font-bold text-sm sm:text-base tracking-[0.2em] uppercase cursor-pointer select-none transition-all duration-150 bg-emerald-800 hover:bg-emerald-700 text-white shadow-[0_4px_0_#09090b,0_8px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.7)] active:translate-y-0.5 active:shadow-[0_1px_0_#09090b]"
             >
               <div className="pointer-events-none absolute inset-x-1 top-1 h-px rounded-full bg-white/60" />
-              {/* Corner Status LED matching selection keycaps */}
-              <div className="pointer-events-none absolute top-[7px] right-[7px] w-[6px] h-[6px] rounded-full bg-emerald-300 shadow-[0_0_5px_2px_rgba(134,239,172,0.85)] animate-pulse" />
               <span>Start Typing</span>
             </button>
           </div>
@@ -116,7 +125,7 @@ export function LandingView({ onStart, onSoundEffect }: LandingViewProps) {
 
       {/* Footer / Privacy Note */}
       <footer className="relative z-10 w-full max-w-4xl text-center py-6 text-xs text-stone-500 font-sans">
-        <span>100% Private. Your words never leave your browser. A clean slate every single time.</span>
+        <span>Your words never leave your browser. A clean slate every single time.</span>
       </footer>
     </div>
   );

@@ -10,12 +10,15 @@ import { Header } from "./components/Header";
 import { DisplayScreen, type ShredMode } from "./components/DisplayScreen";
 import { Controls } from "./components/Controls";
 import { LandingView } from "./components/LandingView";
+import { NumberTicker } from "./components/NumberTicker";
 
 import { useWebAudio } from "./hooks/useWebAudio";
+import { useGlobalCounter } from "./hooks/useGlobalCounter";
 
 import ShapeGrid from "./components/ShapeGrid";
 
 export function App() {
+  const { formattedCount, incrementCount } = useGlobalCounter();
   const [viewMode, setViewMode] = useState<"LANDING" | "CONSOLE">("LANDING");
   const [text, setText] = useState<string>("");
   const [activeMode, setActiveMode] = useState<ShredMode>("DUST");
@@ -107,7 +110,8 @@ export function App() {
     setIsProcessing(true);
     setIsScreenSettled(false);
     playSpringTension();
-  }, [text, isProcessing, playSpringTension]);
+    incrementCount(); // Increment live global counter!
+  }, [text, isProcessing, playSpringTension, incrementCount]);
 
   // Trigger mode-specific audio engine & text destruction AFTER card locks in foreground
   const handleScreenLaunchSettled = useCallback(() => {
@@ -151,20 +155,36 @@ export function App() {
         />
       </div>
 
-      {/* Floating Audio Control Button (Clean Rectangular Keycap) */}
+      {/* Floating Audio Control & Top-Center Counter Badge (Rendered ONLY on CONSOLE View) */}
       {viewMode === "CONSOLE" && (
-        <div className="fixed top-4 right-4 z-50 select-none">
-          <button
-            onClick={toggleMute}
-            title={isMuted ? "Unmute Audio" : "Mute Audio"}
-            className="group relative inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-stone-800/90 bg-stone-950/85 hover:bg-stone-900 text-stone-300 hover:text-stone-100 font-sans text-xs shadow-md transition-all duration-150 cursor-pointer backdrop-blur-md active:scale-95"
-          >
-            <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${isMuted ? "bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)]" : "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"}`} />
-            <span className="font-bold tracking-wider uppercase text-[10px]">
-              {isMuted ? "SOUND OFF" : "SOUND ON"}
-            </span>
-          </button>
-        </div>
+        <>
+          {/* Top Center: Counter Badge (Exact same JSX & styling as LandingView.tsx) */}
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 select-none hidden sm:block">
+            <div className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1 rounded-md border border-zinc-950 bg-[#070b09]/90 backdrop-blur-md text-xs text-stone-300 font-sans tracking-wider shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.9),0_1px_0_rgba(255,255,255,0.12)]">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.85)] animate-pulse" />
+              <span>
+                <span className="text-[#f4ebd0] font-bold">
+                  <NumberTicker value={formattedCount} />
+                </span>{" "}
+                thoughts let go and counting
+              </span>
+            </div>
+          </div>
+
+          {/* Top Right: Audio Control Button */}
+          <div className="fixed top-4 right-4 z-50 select-none">
+            <button
+              onClick={toggleMute}
+              title={isMuted ? "Unmute Audio" : "Mute Audio"}
+              className="group relative inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-stone-800/90 bg-stone-950/85 hover:bg-stone-900 text-stone-300 hover:text-stone-100 font-sans text-xs shadow-md transition-all duration-150 cursor-pointer backdrop-blur-md active:scale-95"
+            >
+              <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${isMuted ? "bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)]" : "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"}`} />
+              <span className="font-bold tracking-wider uppercase text-[10px]">
+                {isMuted ? "SOUND OFF" : "SOUND ON"}
+              </span>
+            </button>
+          </div>
+        </>
       )}
 
       <div className="relative z-10 w-full min-h-screen">
@@ -180,6 +200,7 @@ export function App() {
         >
           <LandingView
             onStart={handleStartDevice}
+            formattedCount={formattedCount}
           />
         </motion.div>
       ) : (
