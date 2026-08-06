@@ -379,7 +379,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
   ]);
 
   return (
-    <div className="relative w-full max-w-full min-w-0 flex-noneh-48 min-h-48 sm:h-60 rounded-lg border border-zinc-800 bg-[linear-gradient(180deg,#101113_0%,#08090a_100%)] shadow-[0_8px_18px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-8px_14px_rgba(0,0,0,0.58)] overflow-hidden select-none sm:h-72">
+    <div className="relative w-full max-w-full min-w-0 flex-none h-48 min-h-48 sm:h-60 rounded-lg border border-zinc-800 bg-[linear-gradient(180deg,#101113_0%,#08090a_100%)] shadow-[0_8px_18px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-8px_14px_rgba(0,0,0,0.58)] overflow-hidden select-none sm:h-72">
       {/* Subtle Scanlines overlay */}
       <div
         className="absolute inset-0 pointer-events-none opacity-100"

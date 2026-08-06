@@ -24,7 +24,7 @@ export const Header: React.FC = () => {
             }}
             className="text-[10px] text-stone-700 tracking-wider font-semibold uppercase mt-0.5"
           >
-            Cathartic Release Instrument
+            Cathartic Release Device
           </p>
         </div>
       </div>
