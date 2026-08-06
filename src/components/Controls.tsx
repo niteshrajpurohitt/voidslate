@@ -26,8 +26,8 @@ export const Controls: React.FC<ControlsProps> = ({
     code: string;
   }[] = [
     {
-      id: "SHRED",
-      label: "SHRED",
+      id: "DUST",
+      label: "DUST",
       code: "01",
     },
     {
@@ -36,8 +36,8 @@ export const Controls: React.FC<ControlsProps> = ({
       code: "02",
     },
     {
-      id: "DUST",
-      label: "DUST",
+      id: "SHRED",
+      label: "SHRED",
       code: "03",
     },
   ];

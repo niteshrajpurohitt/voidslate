@@ -1,7 +1,19 @@
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect, useState } from 'react';
 
 export function useWebAudio() {
   const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const [isMuted, setIsMuted] = useState<boolean>(() => {
+    return localStorage.getItem('voidslate_muted') === 'true';
+  });
+
+  const toggleMute = useCallback(() => {
+    setIsMuted((prev) => {
+      const next = !prev;
+      localStorage.setItem('voidslate_muted', String(next));
+      return next;
+    });
+  }, []);
 
   // Initialize or resume AudioContext on user interaction
   const getAudioContext = useCallback(() => {
@@ -26,6 +38,7 @@ export function useWebAudio() {
 
   // 1. Mechanical Keypress Switch Sound (30ms crisp click)
   const playKeyClick = useCallback(() => {
+    if (isMuted) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
@@ -73,7 +86,7 @@ export function useWebAudio() {
     } catch {
       // Audio fallback silent guard
     }
-  }, [getAudioContext]);
+  }, [getAudioContext, isMuted]);
 
   // 2. Action Key Spring Tension (Uses exact same click sound as all other buttons)
   const playSpringTension = useCallback(() => {
@@ -82,6 +95,7 @@ export function useWebAudio() {
 
   // 3. Shred Destruction Sound (Crisp clean paper tearing slice & mechanical click)
   const playShredSound = useCallback((durationMs: number = 700) => {
+    if (isMuted) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
@@ -117,10 +131,11 @@ export function useWebAudio() {
     } catch {
       // Audio fallback silent guard
     }
-  }, [getAudioContext]);
+  }, [getAudioContext, isMuted]);
 
   // 4. Burn Destruction Sound (Thermal crackle & rising sizzle)
   const playBurnSound = useCallback((durationMs: number = 600) => {
+    if (isMuted) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
@@ -140,26 +155,27 @@ export function useWebAudio() {
 
       const filter = ctx.createBiquadFilter();
       filter.type = 'highpass';
-      filter.frequency.setValueAtTime(2500, now);
-      filter.frequency.exponentialRampToValueAtTime(6000, now + durationSec);
+      filter.frequency.setValueAtTime(800, now);
+      filter.frequency.exponentialRampToValueAtTime(4500, now + durationSec);
 
-      const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.001, now);
-      noiseGain.gain.linearRampToValueAtTime(0.35, now + 0.1);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.35, now + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
 
       noise.connect(filter);
-      filter.connect(noiseGain);
-      noiseGain.connect(ctx.destination);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
 
       noise.start(now);
     } catch {
       // Audio fallback silent guard
     }
-  }, [getAudioContext]);
+  }, [getAudioContext, isMuted]);
 
-  // 5. Dust Destruction Sound (Short, punchy airy whoosh)
-  const playDustSound = useCallback((durationMs: number = 600) => {
+  // 5. Dust Destruction Sound (Deep bass whoosh & wind sweep)
+  const playDustSound = useCallback((durationMs: number = 650) => {
+    if (isMuted) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
@@ -213,9 +229,11 @@ export function useWebAudio() {
     } catch {
       // Audio fallback silent guard
     }
-  }, [getAudioContext]);
+  }, [getAudioContext, isMuted]);
 
   return {
+    isMuted,
+    toggleMute,
     playKeyClick,
     playSpringTension,
     playShredSound,

@@ -18,7 +18,7 @@ import ShapeGrid from "./components/ShapeGrid";
 export function App() {
   const [viewMode, setViewMode] = useState<"LANDING" | "CONSOLE">("LANDING");
   const [text, setText] = useState<string>("");
-  const [activeMode, setActiveMode] = useState<ShredMode>("SHRED");
+  const [activeMode, setActiveMode] = useState<ShredMode>("DUST");
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isScreenSettled, setIsScreenSettled] = useState<boolean>(false);
 
@@ -84,6 +84,8 @@ export function App() {
   }, []);
 
   const {
+    isMuted,
+    toggleMute,
     playKeyClick,
     playSpringTension,
     playShredSound,
@@ -141,6 +143,22 @@ export function App() {
           hoverTrailAmount={3}
         />
       </div>
+
+      {/* Floating Audio Control Pill (Rendered ONLY on CONSOLE View) */}
+      {viewMode === "CONSOLE" && (
+        <div className="fixed top-4 right-4 z-50 select-none">
+          <button
+            onClick={toggleMute}
+            title={isMuted ? "Unmute Audio" : "Mute Audio"}
+            className="group relative inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-stone-800/90 bg-stone-950/85 hover:bg-stone-900 text-stone-300 hover:text-stone-100 font-sans text-xs shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-all duration-150 cursor-pointer backdrop-blur-md active:scale-95"
+          >
+            <div className={`w-1.5 h-1.5 rounded-lg transition-colors duration-200 ${isMuted ? "bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)]" : "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]"}`} />
+            <span className="font-bold tracking-wider uppercase text-[10px]">
+              {isMuted ? "SOUND OFF" : "SOUND ON"}
+            </span>
+          </button>
+        </div>
+      )}
 
       <div className="relative z-10 w-full min-h-screen">
         <AnimatePresence mode="wait">

@@ -17,8 +17,9 @@ export function LandingView({ onStart, onSoundEffect }: LandingViewProps) {
       {/* Top Brand Bar */}
       <header className="relative z-10 w-full max-w-4xl flex items-center justify-center py-4 text-center">
         <div className="flex items-center gap-2.5">
-          <span className="font-sekuya text-base tracking-widest text-[#e3d8c5] uppercase">
-            VOID SLATE
+          <span className="font-sekuya text-base tracking-widest uppercase">
+            <span className="text-emerald-800">VOID</span>{" "}
+            <span className="text-[#e3d8c5]">SLATE</span>
           </span>
         </div>
       </header>
