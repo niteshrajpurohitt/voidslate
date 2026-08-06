@@ -7,6 +7,7 @@ interface DisplayScreenProps {
   text: string;
   setText: (val: string) => void;
   isProcessing: boolean;
+  isScreenSettled?: boolean;
   activeMode: ShredMode;
   maxChars?: number;
   onAnimationComplete: () => void;
@@ -53,6 +54,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
   text,
   setText,
   isProcessing,
+  isScreenSettled = true,
   activeMode,
   maxChars = 500,
   onAnimationComplete,
@@ -68,62 +70,54 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
     const val = e.target.value;
     if (val.length <= maxChars) {
       setText(val);
-      if (onKeypressSound) {
-        onKeypressSound();
-      }
+      onKeypressSound?.();
     }
   };
 
-  // Helper to wrap text for canvas rendering matching textarea
+  // Render original formatted text to offscreen canvas
   const renderTextToCanvasCtx = useCallback(
-    (
-      ctx: CanvasRenderingContext2D,
-      content: string,
-      width: number,
-      height: number,
-    ) => {
-      ctx.clearRect(0, 0, width, height);
-      ctx.font = '600 18px "Inter", sans-serif';
-      ctx.fillStyle = "rgb(250, 250, 249)";
-      ctx.textBaseline = "top";
+    (targetCtx: CanvasRenderingContext2D, width: number) => {
+      targetCtx.clearRect(0, 0, width, targetCtx.canvas.height);
+      targetCtx.fillStyle = "#fffbeb";
+      targetCtx.font = "600 18px sans-serif";
+      targetCtx.textBaseline = "top";
 
       const padding = 24;
       const maxWidth = width - padding * 2;
       const lineHeight = 28;
 
-      // Simple word wrapping
-      const paragraphs = content.split("\n");
+      const paragraphs = text.split("\n");
       let currentY = padding;
 
       for (const paragraph of paragraphs) {
         const words = paragraph.split(" ");
         let currentLine = "";
 
-        for (let i = 0; i < words.length; i++) {
-          const testLine = currentLine
-            ? `${currentLine} ${words[i]}`
-            : words[i];
-          const metrics = ctx.measureText(testLine);
-          if (metrics.width > maxWidth && i > 0) {
-            ctx.fillText(currentLine, padding, currentY);
-            currentLine = words[i];
+        for (const word of words) {
+          const testLine = currentLine ? `${currentLine} ${word}` : word;
+          const metrics = targetCtx.measureText(testLine);
+
+          if (metrics.width > maxWidth && currentLine !== "") {
+            targetCtx.fillText(currentLine, padding, currentY);
+            currentLine = word;
             currentY += lineHeight;
           } else {
             currentLine = testLine;
           }
         }
-        ctx.fillText(currentLine, padding, currentY);
+        targetCtx.fillText(currentLine, padding, currentY);
         currentY += lineHeight;
       }
     },
-    [],
+    [text],
   );
 
-  // Main Canvas Animation Trigger
+  // Trigger canvas particle destruction sequence when processing & card has launched
   useEffect(() => {
-    if (!isProcessing || !canvasRef.current) return;
+    if (!isProcessing || !isScreenSettled || !text.trim()) return;
 
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -139,7 +133,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
     const bufferCtx = bufferCanvas.getContext("2d");
     if (!bufferCtx) return;
 
-    renderTextToCanvasCtx(bufferCtx, text, canvas.width, canvas.height);
+    renderTextToCanvasCtx(bufferCtx, canvas.width);
 
     let startTime: number | null = null;
 
@@ -380,6 +374,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
     };
   }, [
     isProcessing,
+    isScreenSettled,
     activeMode,
     text,
     renderTextToCanvasCtx,
@@ -410,10 +405,10 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
         placeholder="Type your vent here..."
         initial={false}
         animate={{
-          opacity: isProcessing ? 0 : 1,
+          opacity: isProcessing && isScreenSettled ? 0 : 1,
         }}
         transition={{ duration: 0.15, ease: "easeOut" }}
-        className={`w-full min-w-0 h-full bg-red-700 text-amber-50 text-base sm:p-6 sm:text-lg md:text-xl font-semibold tracking-wide leading-relaxed resize-none outline-none border-none caret-stone-50 placeholder-zinc-400/50 relative z-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden  ${
+        className={`w-full min-w-0 h-full p-2 text-amber-50 text-base sm:p-6 sm:text-lg md:text-xl font-semibold tracking-wide leading-relaxed resize-none outline-none border-none caret-stone-50 placeholder-zinc-400/50 relative z-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden  ${
           isProcessing ? "pointer-events-none" : ""
         }`}
         rows={6}
