@@ -75,131 +75,63 @@ export function useWebAudio() {
     }
   }, [getAudioContext]);
 
-  // 2. Action Key Spring Tension (Deeper tactile thud)
+  // 2. Action Key Spring Tension (Uses exact same click sound as all other buttons)
   const playSpringTension = useCallback(() => {
+    playKeyClick();
+  }, [playKeyClick]);
+
+  // 3. Shred Destruction Sound (Crisp clean paper tearing slice & mechanical click)
+  const playShredSound = useCallback((durationMs: number = 700) => {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
+      const durationSec = durationMs / 1000;
 
-      // Deep mechanical spring pulse
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(140, now);
-      osc.frequency.exponentialRampToValueAtTime(35, now + 0.08);
-
-      gain.gain.setValueAtTime(0.6, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-
-      // Metallic resonance noise
-      const bufferSize = ctx.sampleRate * 0.05;
+      // 1. Paper Tearing / Slicing Noise (High pass filtered smooth noise sweep)
+      const bufferSize = ctx.sampleRate * durationSec;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+        // Natural smooth paper tear sound envelope
+        const env = Math.sin((i / bufferSize) * Math.PI);
+        data[i] = (Math.random() * 2 - 1) * env;
       }
       const noise = ctx.createBufferSource();
       noise.buffer = buffer;
 
       const noiseFilter = ctx.createBiquadFilter();
       noiseFilter.type = 'highpass';
-      noiseFilter.frequency.setValueAtTime(1200, now);
-
-      const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.4, now);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
-      noise.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
-      noiseGain.connect(ctx.destination);
-
-      osc.start(now);
-      noise.start(now);
-      osc.stop(now + 0.08);
-    } catch {
-      // Audio fallback silent guard
-    }
-  }, [getAudioContext]);
-
-  // 3. Shred Destruction Sound (Grinding mechanical gears & paper slicing)
-  const playShredSound = useCallback((durationMs: number = 1800) => {
-    try {
-      const ctx = getAudioContext();
-      const now = ctx.currentTime;
-      const durationSec = durationMs / 1000;
-
-      // Gear motor rumble (Square wave modulated)
-      const osc = ctx.createOscillator();
-      const oscGain = ctx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(85, now);
-      osc.frequency.linearRampToValueAtTime(110, now + durationSec * 0.5);
-      osc.frequency.linearRampToValueAtTime(60, now + durationSec);
-
-      // Low pass filter for mechanical motor body
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(450, now);
-
-      oscGain.gain.setValueAtTime(0.001, now);
-      oscGain.gain.linearRampToValueAtTime(0.25, now + 0.1);
-      oscGain.gain.setValueAtTime(0.25, now + durationSec - 0.2);
-      oscGain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
-
-      // Paper tear/crunch noise (LFO modulated white noise)
-      const bufferSize = ctx.sampleRate * durationSec;
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        // Chopped rhythmic crunching sound
-        const chopper = Math.sin(i * 0.08) > 0 ? 1 : 0.2;
-        data[i] = (Math.random() * 2 - 1) * chopper;
-      }
-      const noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-
-      const noiseFilter = ctx.createBiquadFilter();
-      noiseFilter.type = 'bandpass';
-      noiseFilter.frequency.setValueAtTime(1800, now);
-      noiseFilter.Q.setValueAtTime(1.5, now);
+      noiseFilter.frequency.setValueAtTime(1400, now);
+      noiseFilter.frequency.linearRampToValueAtTime(3200, now + durationSec);
 
       const noiseGain = ctx.createGain();
       noiseGain.gain.setValueAtTime(0.001, now);
-      noiseGain.gain.linearRampToValueAtTime(0.3, now + 0.05);
+      noiseGain.gain.linearRampToValueAtTime(0.45, now + 0.05);
       noiseGain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
-
-      osc.connect(filter);
-      filter.connect(oscGain);
-      oscGain.connect(ctx.destination);
 
       noise.connect(noiseFilter);
       noiseFilter.connect(noiseGain);
       noiseGain.connect(ctx.destination);
 
-      osc.start(now);
       noise.start(now);
-      osc.stop(now + durationSec);
     } catch {
       // Audio fallback silent guard
     }
   }, [getAudioContext]);
 
   // 4. Burn Destruction Sound (Thermal crackle & rising sizzle)
-  const playBurnSound = useCallback((durationMs: number = 2000) => {
+  const playBurnSound = useCallback((durationMs: number = 600) => {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const durationSec = durationMs / 1000;
 
-      // Thermal sizzle / hiss (Highpass noise)
+      // Thermal sizzle / hiss + crackle pops (Highpass noise)
       const bufferSize = ctx.sampleRate * durationSec;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
-        // Random pops and fire crackle spikes
+        // Random pops and fire crackle spikes over sizzle background
         const isSpike = Math.random() > 0.985;
         data[i] = isSpike ? (Math.random() * 2 - 1) * 3 : (Math.random() * 2 - 1) * 0.3;
       }
@@ -216,83 +148,68 @@ export function useWebAudio() {
       noiseGain.gain.linearRampToValueAtTime(0.35, now + 0.1);
       noiseGain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
 
-      // Rising thermal sine whine
-      const osc = ctx.createOscillator();
-      const oscGain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(300, now);
-      osc.frequency.exponentialRampToValueAtTime(1400, now + durationSec * 0.8);
-
-      oscGain.gain.setValueAtTime(0.001, now);
-      oscGain.gain.linearRampToValueAtTime(0.15, now + 0.2);
-      oscGain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
-
       noise.connect(filter);
       filter.connect(noiseGain);
       noiseGain.connect(ctx.destination);
 
-      osc.connect(oscGain);
-      oscGain.connect(ctx.destination);
-
       noise.start(now);
-      osc.start(now);
-      osc.stop(now + durationSec);
     } catch {
       // Audio fallback silent guard
     }
   }, [getAudioContext]);
 
-  // 5. Dust Destruction Sound (Digital matrix disintegration / laser sweep)
-  const playDustSound = useCallback((durationMs: number = 1600) => {
+  // 5. Dust Destruction Sound (Short, punchy airy whoosh)
+  const playDustSound = useCallback((durationMs: number = 600) => {
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
       const durationSec = durationMs / 1000;
 
-      // Descending pitch laser sweep
-      const osc = ctx.createOscillator();
-      const oscGain = ctx.createGain();
-      osc.type = 'square';
-      osc.frequency.setValueAtTime(2400, now);
-      osc.frequency.exponentialRampToValueAtTime(120, now + durationSec);
-
-      const oscFilter = ctx.createBiquadFilter();
-      oscFilter.type = 'lowpass';
-      oscFilter.frequency.setValueAtTime(3000, now);
-
-      oscGain.gain.setValueAtTime(0.2, now);
-      oscGain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
-
-      // Pixel dust sparkle noise
+      // 1. Air Noise for Whoosh
       const bufferSize = ctx.sampleRate * durationSec;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.4));
+        data[i] = Math.random() * 2 - 1;
       }
       const noise = ctx.createBufferSource();
       noise.buffer = buffer;
 
+      // Low sweeping bandpass filter for deep heavy whoosh
       const noiseFilter = ctx.createBiquadFilter();
       noiseFilter.type = 'bandpass';
-      noiseFilter.frequency.setValueAtTime(4500, now);
-      noiseFilter.Q.setValueAtTime(4.0, now);
+      noiseFilter.frequency.setValueAtTime(100, now);
+      noiseFilter.frequency.exponentialRampToValueAtTime(750, now + durationSec * 0.45);
+      noiseFilter.frequency.exponentialRampToValueAtTime(60, now + durationSec);
+      noiseFilter.Q.setValueAtTime(1.2, now);
 
       const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.3, now);
+      noiseGain.gain.setValueAtTime(0.001, now);
+      noiseGain.gain.linearRampToValueAtTime(0.55, now + durationSec * 0.35);
       noiseGain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
 
-      osc.connect(oscFilter);
-      oscFilter.connect(oscGain);
-      oscGain.connect(ctx.destination);
+      // Deep sub-bass bass drop oscillator
+      const subOsc = ctx.createOscillator();
+      const subGain = ctx.createGain();
+      subOsc.type = 'sine';
+      subOsc.frequency.setValueAtTime(50, now);
+      subOsc.frequency.exponentialRampToValueAtTime(130, now + durationSec * 0.4);
+      subOsc.frequency.exponentialRampToValueAtTime(30, now + durationSec);
+
+      subGain.gain.setValueAtTime(0.001, now);
+      subGain.gain.linearRampToValueAtTime(0.4, now + durationSec * 0.35);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
 
       noise.connect(noiseFilter);
       noiseFilter.connect(noiseGain);
       noiseGain.connect(ctx.destination);
 
-      osc.start(now);
+      subOsc.connect(subGain);
+      subGain.connect(ctx.destination);
+
       noise.start(now);
-      osc.stop(now + durationSec);
+      subOsc.start(now);
+      subOsc.stop(now + durationSec);
     } catch {
       // Audio fallback silent guard
     }

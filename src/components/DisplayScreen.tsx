@@ -183,11 +183,11 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
         let activeStrips = 0;
         for (const strip of strips) {
           // Fall downward immediately with positive velocity
-          strip.vy += 0.1; // downward gravity acceleration
+          strip.vy += 0.28; // faster downward gravity acceleration
           strip.y += strip.vy;
 
-          if (strip.y > 30) {
-            strip.opacity -= 0.02;
+          if (strip.y > 20) {
+            strip.opacity -= 0.045; // faster fade out
           }
 
           if (strip.opacity > 0 && strip.y < canvas.height + 40) {
@@ -203,7 +203,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
           }
         }
 
-        if (activeStrips > 0 && elapsed < 2000) {
+        if (activeStrips > 0 && elapsed < 1000) {
           animFrameRef.current = requestAnimationFrame(animateShred);
         } else {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -233,11 +233,11 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
             embers.push({
               x,
               y,
-              vx: (Math.random() - 0.5) * 2.2,
-              vy: -(1.5 + Math.random() * 3.0),
+              vx: (Math.random() - 0.5) * 2.8,
+              vy: -(2.5 + Math.random() * 4.0),
               size: 1.8 + Math.random() * 3.5,
               alpha: 1.0,
-              maxLife: 45 + Math.random() * 55,
+              maxLife: 25 + Math.random() * 30,
               life: 0,
               color: fireColors[colorIdx],
             });
@@ -251,8 +251,8 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Draw initial text with intense fiery orange/white heat glow for the first 500ms
-        if (elapsed < 500) {
+        // Draw initial text with intense fiery orange/white heat glow for the first 300ms
+        if (elapsed < 300) {
           ctx.save();
           ctx.shadowBlur = 18;
           ctx.shadowColor = "#f97316";
@@ -262,7 +262,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
 
         let activeEmbers = 0;
         for (const p of embers) {
-          if (elapsed < 180 && Math.random() > 0.4) continue; // staggered ignite start
+          if (elapsed < 100 && Math.random() > 0.4) continue; // staggered ignite start
 
           p.life++;
           p.x += p.vx + Math.sin(p.life * 0.12) * 1.1; // realistic flickering heat sway
@@ -289,7 +289,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
           }
         }
 
-        if (activeEmbers > 0 && elapsed < 2400) {
+        if (activeEmbers > 0 && elapsed < 1200) {
           animFrameRef.current = requestAnimationFrame(animateBurn);
         } else {
           ctx.clearRect(0, 0, canvas.width, canvas.height);

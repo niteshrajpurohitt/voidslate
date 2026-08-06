@@ -35,11 +35,11 @@ export function App() {
     setIsScreenSettled(true);
 
     if (activeMode === "SHRED") {
-      playShredSound(2200);
+      playShredSound(700);
     } else if (activeMode === "BURN") {
-      playBurnSound(2400);
+      playBurnSound(800);
     } else if (activeMode === "DUST") {
-      playDustSound(2000);
+      playDustSound(600);
     }
   }, [
     isProcessing,
