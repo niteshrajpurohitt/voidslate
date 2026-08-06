@@ -387,7 +387,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
   ]);
 
   return (
-    <div className="relative w-full max-w-full min-w-0 flex-none h-56 min-h-56 rounded-lg border border-zinc-800 bg-[linear-gradient(180deg,#101113_0%,#08090a_100%)] shadow-[0_8px_18px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-8px_14px_rgba(0,0,0,0.58)] overflow-hidden select-none mb-6 sm:h-72">
+    <div className="relative w-full max-w-full min-w-0 flex-noneh-48 min-h-48 sm:h-60 rounded-lg border border-zinc-800 bg-[linear-gradient(180deg,#101113_0%,#08090a_100%)] shadow-[0_8px_18px_rgba(0,0,0,0.32),inset_0_1px_0_rgba(255,255,255,0.1),inset_0_-8px_14px_rgba(0,0,0,0.58)] overflow-hidden select-none sm:h-72">
       {/* Subtle Scanlines overlay */}
       <div
         className="absolute inset-0 pointer-events-none opacity-100"
@@ -413,7 +413,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
           opacity: isProcessing ? 0 : 1,
         }}
         transition={{ duration: 0.15, ease: "easeOut" }}
-        className={`w-full min-w-0 h-full p-4 bg-transparent text-amber-50 font-mono-hardware text-base sm:p-6 sm:text-lg md:text-xl font-bold tracking-wide leading-relaxed resize-none outline-none border-none caret-stone-50 placeholder-zinc-400/50 relative z-0 ${
+        className={`w-full min-w-0 h-full bg-red-700 text-amber-50 text-base sm:p-6 sm:text-lg md:text-xl font-semibold tracking-wide leading-relaxed resize-none outline-none border-none caret-stone-50 placeholder-zinc-400/50 relative z-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden  ${
           isProcessing ? "pointer-events-none" : ""
         }`}
         rows={6}
