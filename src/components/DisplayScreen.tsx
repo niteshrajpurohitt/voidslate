@@ -73,13 +73,15 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
     }
   };
 
-  // Render original formatted text to offscreen canvas
+  // Render original formatted text to offscreen canvas with etched glow
   const renderTextToCanvasCtx = useCallback(
     (targetCtx: CanvasRenderingContext2D, width: number) => {
       targetCtx.clearRect(0, 0, width, targetCtx.canvas.height);
       targetCtx.fillStyle = "#fffbeb";
       targetCtx.font = "600 18px sans-serif";
       targetCtx.textBaseline = "top";
+      targetCtx.shadowColor = "rgba(251, 191, 36, 0.4)";
+      targetCtx.shadowBlur = 8;
 
       const padding = 24;
       const maxWidth = width - padding * 2;
@@ -403,6 +405,10 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
           opacity: isProcessing && isScreenSettled ? 0 : 1,
         }}
         transition={{ duration: 0.15, ease: "easeOut" }}
+        style={{
+          textShadow:
+            "0 1px 2px rgba(0,0,0,0.35), 0 0 8px rgba(251, 191, 36, 0.2)",
+        }}
         className={`w-full min-w-0 h-full p-2 text-amber-50 text-base sm:p-6 sm:text-lg md:text-xl font-semibold tracking-wide leading-relaxed resize-none outline-none border-none caret-stone-50 placeholder-zinc-400/50 relative z-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden  ${
           isProcessing ? "pointer-events-none" : ""
         }`}

@@ -7,11 +7,23 @@ export const Header: React.FC = () => {
       <div className="flex items-center gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-sm sm:text-base font-sekuya tracking-wider text-zinc-900 m-0">
+            <h1
+              style={{
+                textShadow:
+                  "0 1px 0 rgba(255, 255, 255, 0.75), 0 -1px 1px rgba(0, 0, 0, 0.5)",
+              }}
+              className="text-sm sm:text-base font-sekuya tracking-wider text-zinc-950 m-0"
+            >
               VOID SLATE
             </h1>
           </div>
-          <p className="text-[10px] text-stone-700 tracking-wider font-semibold uppercase mt-0.5">
+          <p
+            style={{
+              textShadow:
+                "0 1px 0 rgba(255, 255, 255, 0.65), 0 -1px 0.5px rgba(0, 0, 0, 0.35)",
+            }}
+            className="text-[10px] text-stone-700 tracking-wider font-semibold uppercase mt-0.5"
+          >
             Cathartic Release Instrument
           </p>
         </div>
