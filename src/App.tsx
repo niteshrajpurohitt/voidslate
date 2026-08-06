@@ -82,7 +82,7 @@ export function App() {
   <div className="w-1.5 h-[1.5px] bg-zinc-800 -rotate-45" />
 </div>
         {/* 1. Header Component */}
-        <Header charCount={text.length} maxChars={500} />
+        <Header />
 
        {/* Clean Milled Display Frame */}
 <div className="rounded-lg border border-black/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.6)] p-0.5">
