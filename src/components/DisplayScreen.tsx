@@ -63,6 +63,14 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animFrameRef = useRef<number | null>(null);
 
+  // Auto-focus textarea on mount so users can type immediately
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      textareaRef.current?.focus();
+    }, 400);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Handle typing & keypress audio
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (isProcessing) return;
@@ -399,7 +407,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
         value={text}
         onChange={handleChange}
         disabled={isProcessing}
-        placeholder="Start typing here..."
+        placeholder="Type freely. Nothing you type is ever stored or seen by anyone."
         initial={false}
         animate={{
           opacity: isProcessing && isScreenSettled ? 0 : 1,

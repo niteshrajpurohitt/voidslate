@@ -14,7 +14,7 @@
 
 **Voidslate** is a privacy-first, synthesizer-like web device designed for emotional catharsis and mental clarity. Got a secret, a random rant, or something heavy you just need to get off your chest without telling anyone? Type it out, select destruction mode, press execute and watch your words disappear into nothingness.
 
-Every thought you enter is processed 100% locally in your browser. **Your words never leave your browser. Zero server logs, zero database storage.** A clean slate every single time.
+Every thought you enter is processed 100% locally in your browser. **Private by design. Your words never leave your browser. Zero server logs, zero database storage.** A clean slate every single time.
 
 ---
 
@@ -39,8 +39,7 @@ Every thought you enter is processed 100% locally in your browser. **Your words 
 - **`[03] SHRED`**: Mechanical paper shredder — slicing your thought into vertical strips before vanishing.
 
 ###  4. Live Odometer Global Counter
-- **Teenage Engineering Inspired Ticker**: Features a mechanical slot-machine rolling number animation (`NumberTicker`).
-- **Persistent Global Count**: Backed by **Upstash Redis** via a Vercel serverless function (`/api/counter`). Uses atomic `INCR` — no race conditions, no data loss on refresh.
+- **Persistent Global Count**: Backed by **Upstash Redis** via a Vercel serverless function (`/api/counter`). Uses atomic `INCR` — no race conditions, no data loss on refresh. Features a mechanical slot-machine rolling number animation (`NumberTicker`).
 - **Optimistic UI**: Counter updates instantly on screen before the API confirms, then syncs the real value from Redis.
 - **Live Background Sync**: Polls every 15 seconds to display authentic global thought purges worldwide.
 

@@ -31,7 +31,7 @@ export function LandingView({ onStart, onSoundEffect, formattedCount = "0" }: La
             <span className="text-[#f4ebd0] font-bold">
               <NumberTicker value={formattedCount} />
             </span>{" "}
-            thoughts let go 
+            thoughts let go
           </span>
         </div>
 
@@ -85,7 +85,7 @@ export function LandingView({ onStart, onSoundEffect, formattedCount = "0" }: La
           }}
           className="mt-6 text-base sm:text-lg text-[#b8ad9e] drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] max-w-xl leading-relaxed font-sans"
         >
-          {"Got a secret, a random rant, or something you just need to get off your chest without telling anyone? Type it out, let go and clear your mind."
+          {"Got a secret, a random rant or something you just need to get off your chest without telling anyone? Type it out and clear your mind."
             .split("")
             .map((char, index) => (
               <motion.span
@@ -121,12 +121,22 @@ export function LandingView({ onStart, onSoundEffect, formattedCount = "0" }: La
             </button>
           </div>
         </motion.div>
+
+        {/* Trust Badge */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="mt-5 flex items-center gap-2 px-4 py-1.5 rounded-lg border border-emerald-900/40 bg-emerald-950/30 backdrop-blur-sm text-xs text-[#f4ebd0]/70 select-none"
+        >
+          <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path fillRule="evenodd" clipRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3A5.25 5.25 0 0012 1.5zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" />
+          </svg>
+          <span>Private by design. Nothing you type is ever stored.</span>
+        </motion.div>
       </main>
 
-      {/* Footer / Privacy Note */}
-      <footer className="relative z-10 w-full max-w-4xl text-center py-6 text-xs text-stone-500 font-sans">
-        <span>Your words never leave your browser. A clean slate every single time.</span>
-      </footer>
+
     </div>
   );
 }
