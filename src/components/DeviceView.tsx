@@ -15,8 +15,6 @@ interface DeviceViewProps {
   text: string;
   setText: (val: string) => void;
   formattedCount: string;
-  isMuted: boolean;
-  onToggleMute: () => void;
   onExecute: () => void;
   onAnimationComplete: () => void;
   onScreenLaunchSettled: () => void;
@@ -33,8 +31,6 @@ export function DeviceView({
   text,
   setText,
   formattedCount,
-  isMuted,
-  onToggleMute,
   onExecute,
   onAnimationComplete,
   onScreenLaunchSettled,
@@ -85,13 +81,13 @@ export function DeviceView({
 
       {/* Tabletop Chassis Frame */}
       <motion.div
-        className="relative min-h-screen w-full overflow-hidden flex items-center justify-center px-2 py-3 sm:px-4 sm:py-8 select-none [perspective:1400px]"
+        className="relative min-h-screen w-full overflow-hidden flex items-center justify-center px-2 py-3 sm:px-4 sm:py-8 select-none perspective-[1400px]"
         onMouseMove={handleChassisMouseMove}
         onMouseLeave={handleChassisMouseLeave}
       >
         <motion.div
           id="chassis-frame"
-          className="relative w-full max-w-[42rem] min-w-0 flex-none box-border rounded-[1.25rem] border-2 border-zinc-950 bg-[linear-gradient(180deg,#ab9d87_0%,#c9bc9e_22%,#a09077_100%)] p-5 sm:p-6 md:p-8"
+          className="relative w-full max-w-2xl min-w-0 flex-none box-border rounded-[1.25rem] border-2 border-zinc-950 bg-[linear-gradient(180deg,#ab9d87_0%,#c9bc9e_22%,#a09077_100%)] p-5 sm:p-6 md:p-8"
           animate={{
             scale: isProcessing ? 0.9 : 1,
           }}
@@ -117,7 +113,7 @@ export function DeviceView({
           <div className="pointer-events-none absolute inset-[0.45rem] rounded-[0.95rem] border border-black/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.24),inset_0_-1px_0_rgba(0,0,0,0.14)]" />
 
           <div
-            className="pointer-events-none absolute inset-[0.50rem] rounded-[0.90rem] opacity-[0.16]"
+            className="pointer-events-none absolute inset-2 rounded-[0.90rem] opacity-[0.16]"
             style={{
               backgroundImage:
                 "radial-gradient(rgba(255,255,255,1) 1px, transparent 0.6px)",

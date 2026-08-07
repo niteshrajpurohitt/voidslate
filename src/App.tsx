@@ -112,7 +112,7 @@ export function App() {
       </div>
 
       {/* True page-level fixed: outside all motion/filter wrappers */}
-      <div className="fixed top-4 right-4 z-[100] select-none">
+      <div className="fixed top-4 right-4 z-100 select-none">
         <AudioToggle isMuted={isMuted} onToggle={toggleMute} />
       </div>
 
@@ -149,8 +149,6 @@ export function App() {
                 text={text}
                 setText={setText}
                 formattedCount={formattedCount}
-                isMuted={isMuted}
-                onToggleMute={toggleMute}
                 onExecute={handleExecute}
                 onAnimationComplete={handleAnimationComplete}
                 onScreenLaunchSettled={handleScreenLaunchSettled}
