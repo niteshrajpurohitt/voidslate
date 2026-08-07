@@ -1,7 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 
 export function useGlobalCounter() {
-  const [count, setCount] = useState<number>(0);
+  const [count, setCount] = useState<number>(() => {
+    try {
+      const cached = localStorage.getItem("voidslate_cached_count");
+      return cached ? parseInt(cached, 10) || 0 : 0;
+    } catch {
+      return 0;
+    }
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Fetch the latest count from our Vercel serverless API
@@ -12,6 +19,9 @@ export function useGlobalCounter() {
         const data = await res.json();
         if (typeof data.count === "number") {
           setCount(data.count);
+          try {
+            localStorage.setItem("voidslate_cached_count", String(data.count));
+          } catch {}
         }
       }
     } catch {
@@ -31,7 +41,13 @@ export function useGlobalCounter() {
   // Triggered when user presses EXECUTE
   const incrementCount = useCallback(async () => {
     // 1. Optimistic UI update immediately (+1)
-    setCount((prev) => prev + 1);
+    setCount((prev) => {
+      const next = prev + 1;
+      try {
+        localStorage.setItem("voidslate_cached_count", String(next));
+      } catch {}
+      return next;
+    });
 
     // 2. POST to API — Redis INCR atomically
     try {
@@ -40,6 +56,9 @@ export function useGlobalCounter() {
         const data = await res.json();
         if (typeof data.count === "number") {
           setCount(data.count);
+          try {
+            localStorage.setItem("voidslate_cached_count", String(data.count));
+          } catch {}
         }
       }
     } catch {

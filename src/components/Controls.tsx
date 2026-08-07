@@ -11,7 +11,7 @@ interface ControlsProps {
   onActionClickSound: () => void;
 }
 
-export const Controls: React.FC<ControlsProps> = ({
+export function Controls({
   activeMode,
   setActiveMode,
   onExecute,
@@ -19,7 +19,7 @@ export const Controls: React.FC<ControlsProps> = ({
   hasText,
   onModeClickSound,
   onActionClickSound,
-}) => {
+}: ControlsProps) {
   const modes: {
     id: ShredMode;
     label: string;
@@ -126,7 +126,7 @@ export const Controls: React.FC<ControlsProps> = ({
         >
           DISPOSE THOUGHT
         </span>
-        <div className="rounded-md border border-black/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.6) pb-2 px-0.5">
+        <div className="rounded-md border border-black/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.6)] pb-2 px-0.5">
         <motion.button
           type="button"
           whileTap={{ y: 3 }}

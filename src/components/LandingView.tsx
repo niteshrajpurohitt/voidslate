@@ -1,17 +1,12 @@
 import { motion } from "framer-motion";
-import { NumberTicker } from "./NumberTicker";
+import { CounterBadge } from "./CounterBadge";
 
 interface LandingViewProps {
   onStart: () => void;
-  onSoundEffect?: () => void;
   formattedCount?: string;
 }
 
-export function LandingView({ onStart, onSoundEffect, formattedCount = "0" }: LandingViewProps) {
-  const handleStart = () => {
-    if (onSoundEffect) onSoundEffect();
-    onStart();
-  };
+export function LandingView({ onStart, formattedCount = "0" }: LandingViewProps) {
 
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-between px-6 py-8 sm:py-12 select-none overflow-y-auto text-stone-100 font-sans">
@@ -24,15 +19,8 @@ export function LandingView({ onStart, onSoundEffect, formattedCount = "0" }: La
           <span className="text-[#f4ebd0] leading-none mt-0.5">SLATE</span>
         </div>
 
-        {/* Center: Counter Badge (Recessed Hardware Display Window with LED & Inter Font) */}
-        <div className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1 rounded-md border border-zinc-950 bg-[#070b09]/90 backdrop-blur-md text-xs text-stone-300 font-sans tracking-wider shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.9),0_1px_0_rgba(255,255,255,0.12)] absolute left-1/2 -translate-x-1/2">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.85)] animate-pulse" />
-          <span>
-            <span className="text-[#f4ebd0] font-bold">
-              <NumberTicker value={formattedCount} />
-            </span>{" "}
-            thoughts let go
-          </span>
+        <div className="absolute left-1/2 -translate-x-1/2">
+          <CounterBadge formattedCount={formattedCount} />
         </div>
 
         {/* Right: GitHub Icon Link */}
@@ -113,7 +101,7 @@ export function LandingView({ onStart, onSoundEffect, formattedCount = "0" }: La
         >
           <div className="rounded-md border border-black/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.4)] p-0.5 inline-block">
             <button
-              onClick={handleStart}
+              onClick={onStart}
               className="group relative overflow-hidden inline-flex items-center justify-center px-10 py-3.5 rounded border border-zinc-900 font-sans font-bold text-sm sm:text-base tracking-[0.2em] uppercase cursor-pointer select-none transition-all duration-150 bg-emerald-800 hover:bg-emerald-700 text-white shadow-[0_4px_0_#09090b,0_8px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.7)] active:translate-y-0.5 active:shadow-[0_1px_0_#09090b]"
             >
               <div className="pointer-events-none absolute inset-x-1 top-1 h-px rounded-full bg-white/60" />
