@@ -6,13 +6,14 @@ const BASE_COUNT = 0;
 // Environment check for separate development vs production key
 const IS_DEV = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
-// API Namespace and Key (Dev vs Prod)
-const API_NAMESPACE = "voidslate_v1";
-const API_KEY = IS_DEV ? "thoughts_purged_dev" : "thoughts_purged_prod";
+// Workspace and counter name (Dev vs Prod) — counterapi.dev v2
+const WORKSPACE = "voidslate";
+const COUNTER_NAME = IS_DEV ? "thoughts-dev" : "thoughts-prod";
 
-const GET_URL = `https://api.countapi.xyz/get/${API_NAMESPACE}/${API_KEY}`;
-const HIT_URL = `https://api.countapi.xyz/hit/${API_NAMESPACE}/${API_KEY}`;
-const CREATE_URL = `https://api.countapi.xyz/create?namespace=${API_NAMESPACE}&key=${API_KEY}&value=${BASE_COUNT}`;
+// counterapi.dev v2 endpoints (auto-creates counter on first hit)
+const BASE = `https://api.counterapi.dev/v2/${WORKSPACE}/${COUNTER_NAME}`;
+const GET_URL = BASE;
+const HIT_URL = `${BASE}/up`;
 
 export function useGlobalCounter() {
   const [count, setCount] = useState<number>(BASE_COUNT);
@@ -24,17 +25,9 @@ export function useGlobalCounter() {
       const res = await fetch(GET_URL);
       if (res.ok) {
         const data = await res.json();
-        if (typeof data.value === "number") {
-          setCount(data.value);
-        }
-      } else if (res.status === 404) {
-        // Initialize the counter key if it doesn't exist yet
-        const createRes = await fetch(CREATE_URL);
-        if (createRes.ok) {
-          const createData = await createRes.json();
-          if (typeof createData.value === "number") {
-            setCount(createData.value);
-          }
+        // counterapi.dev v2 returns { count: number }
+        if (typeof data.count === "number") {
+          setCount(data.count);
         }
       }
     } catch {
@@ -61,8 +54,9 @@ export function useGlobalCounter() {
       const res = await fetch(HIT_URL);
       if (res.ok) {
         const data = await res.json();
-        if (typeof data.value === "number") {
-          setCount(data.value);
+        // counterapi.dev v2 returns { count: number }
+        if (typeof data.count === "number") {
+          setCount(data.count);
         }
       }
     } catch {

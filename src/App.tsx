@@ -166,7 +166,7 @@ export function App() {
                 <span className="text-[#f4ebd0] font-bold">
                   <NumberTicker value={formattedCount} />
                 </span>{" "}
-                thoughts let go and counting
+                thoughts let go
               </span>
             </div>
           </div>

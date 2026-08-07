@@ -31,7 +31,7 @@ export function LandingView({ onStart, onSoundEffect, formattedCount = "0" }: La
             <span className="text-[#f4ebd0] font-bold">
               <NumberTicker value={formattedCount} />
             </span>{" "}
-            thoughts let go and counting
+            thoughts let go 
           </span>
         </div>
 
