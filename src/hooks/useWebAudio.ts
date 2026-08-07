@@ -36,21 +36,104 @@ export function useWebAudio() {
     };
   }, []);
 
-  // 1. Mechanical Keypress Switch Sound (30ms crisp click)
+  // 1. Mechanical Keypress Switch Sound — layered clicky MX-Blue style
   const playKeyClick = useCallback(() => {
     if (isMuted) return;
     try {
       const ctx = getAudioContext();
       const now = ctx.currentTime;
 
-      // Click Noise
-      const bufferSize = ctx.sampleRate * 0.025; // 25ms
+      // Per-keypress micro-variation so each key feels unique
+      const pitchVariance = 0.88 + Math.random() * 0.24;   // ±12% pitch
+      const volVariance   = 0.82 + Math.random() * 0.22;   // ±11% volume
+
+      // --- Layer 1: Click Snap ---
+      // Very short (6ms) high-freq noise burst — the actuator "click"
+      const clickSize = Math.floor(ctx.sampleRate * 0.006);
+      const clickBuf  = ctx.createBuffer(1, clickSize, ctx.sampleRate);
+      const clickData = clickBuf.getChannelData(0);
+      for (let i = 0; i < clickSize; i++) {
+        clickData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (clickSize * 0.25));
+      }
+      const clickSrc = ctx.createBufferSource();
+      clickSrc.buffer = clickBuf;
+
+      const clickFilter = ctx.createBiquadFilter();
+      clickFilter.type = 'bandpass';
+      clickFilter.frequency.setValueAtTime(4200 * pitchVariance, now);
+      clickFilter.Q.setValueAtTime(2.5, now);
+
+      const clickGain = ctx.createGain();
+      clickGain.gain.setValueAtTime(0.55 * volVariance, now);
+      clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.008);
+
+      clickSrc.connect(clickFilter);
+      clickFilter.connect(clickGain);
+      clickGain.connect(ctx.destination);
+
+      // --- Layer 2: Thock Body ---
+      // Bandpass noise ~550Hz — hollow key body resonance
+      const thockSize = Math.floor(ctx.sampleRate * 0.032);
+      const thockBuf  = ctx.createBuffer(1, thockSize, ctx.sampleRate);
+      const thockData = thockBuf.getChannelData(0);
+      for (let i = 0; i < thockSize; i++) {
+        thockData[i] = (Math.random() * 2 - 1) * Math.exp(-i / (thockSize * 0.35));
+      }
+      const thockSrc = ctx.createBufferSource();
+      thockSrc.buffer = thockBuf;
+
+      const thockFilter = ctx.createBiquadFilter();
+      thockFilter.type = 'bandpass';
+      thockFilter.frequency.setValueAtTime(560 * pitchVariance, now);
+      thockFilter.Q.setValueAtTime(1.8, now);
+
+      const thockGain = ctx.createGain();
+      thockGain.gain.setValueAtTime(0.001, now);
+      thockGain.gain.linearRampToValueAtTime(0.38 * volVariance, now + 0.003);
+      thockGain.gain.exponentialRampToValueAtTime(0.001, now + 0.032);
+
+      thockSrc.connect(thockFilter);
+      thockFilter.connect(thockGain);
+      thockGain.connect(ctx.destination);
+
+      // --- Layer 3: Key Tone ---
+      // Fast pitch-drop sine — physical stem/spring movement feel
+      const keyOsc  = ctx.createOscillator();
+      const keyGain = ctx.createGain();
+      keyOsc.type = 'sine';
+      keyOsc.frequency.setValueAtTime(280 * pitchVariance, now);
+      keyOsc.frequency.exponentialRampToValueAtTime(65 * pitchVariance, now + 0.018);
+
+      keyGain.gain.setValueAtTime(0.22 * volVariance, now);
+      keyGain.gain.exponentialRampToValueAtTime(0.001, now + 0.022);
+
+      keyOsc.connect(keyGain);
+      keyGain.connect(ctx.destination);
+
+      // Fire all layers
+      clickSrc.start(now);
+      thockSrc.start(now);
+      keyOsc.start(now);
+      keyOsc.stop(now + 0.025);
+    } catch {
+      // Audio fallback silent guard
+    }
+  }, [getAudioContext, isMuted]);
+
+  // 2. Button Click Sound — original crisp click (separate from typing sound)
+  const playSpringTension = useCallback(() => {
+    if (isMuted) return;
+    try {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+
+      // Bandpass noise burst
+      const bufferSize = ctx.sampleRate * 0.025;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
         data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.2));
       }
-
       const noise = ctx.createBufferSource();
       noise.buffer = buffer;
 
@@ -87,11 +170,6 @@ export function useWebAudio() {
       // Audio fallback silent guard
     }
   }, [getAudioContext, isMuted]);
-
-  // 2. Action Key Spring Tension (Uses exact same click sound as all other buttons)
-  const playSpringTension = useCallback(() => {
-    playKeyClick();
-  }, [playKeyClick]);
 
   // 3. Shred Destruction Sound (Crisp clean paper tearing slice & mechanical click)
   const playShredSound = useCallback((durationMs: number = 700) => {
