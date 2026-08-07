@@ -14,7 +14,7 @@
 
 **Voidslate** is a privacy-first, synthesizer-like web device designed for emotional catharsis and mental clarity. Got a secret, a random rant, or something heavy you just need to get off your chest without telling anyone? Type it out, select destruction mode, press execute  button and watch your words disappear into nothingness.
 
-Every thought you enter is processed 100% locally in your browser. **Your words never leave your browser—zero server logs, zero database storage.** A clean slate every single time.
+Every thought you enter is processed 100% locally in your browser. **Your words never leave your browser. Zero server logs, zero database storage.** A clean slate every single time.
 
 ---
 
@@ -30,7 +30,7 @@ Every thought you enter is processed 100% locally in your browser. **Your words 
   - Tactile mechanical keycap clicks on every keystroke.
   - Spring-tension mechanics when initiating destruction.
   - Custom acoustic profiles for **DUST**, **BURN**, and **SHRED** modes.
-  - **Explicit Sound Toggle**: Dedicated `[ 🟢 SOUND ON ]` / `[ 🔴 SOUND OFF ]` pill with `localStorage` state persistence.
+  - **Explicit Sound Toggle**: Dedicated `[ SOUND ON ]` / `[ SOUND OFF ]` pill with `localStorage` state persistence.
 
 ###  3. Three Destruction Modes
 - **`[01] DUST`**: Particle disaggregation—your text breaks down into fading micro-dust particles.
