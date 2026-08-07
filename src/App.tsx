@@ -111,10 +111,12 @@ export function App() {
         />
       </div>
 
-      {/* True page-level fixed: outside all motion/filter wrappers */}
-      <div className="fixed top-4 right-4 z-100 select-none">
-        <AudioToggle isMuted={isMuted} onToggle={toggleMute} />
-      </div>
+      {/* True page-level fixed: outside device motion/filter wrapper */}
+      {viewMode === "DEVICE" && (
+        <div className="fixed top-4 right-4 z-100 select-none">
+          <AudioToggle isMuted={isMuted} onToggle={toggleMute} />
+        </div>
+      )}
 
       <div className="relative z-10 w-full min-h-screen">
         <AnimatePresence mode="wait">
