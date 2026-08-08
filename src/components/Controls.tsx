@@ -134,12 +134,13 @@ export function Controls({
           disabled={isProcessing || !hasText}
           onClick={handleActionClick}
           aria-busy={isProcessing}
-          className={`relative w-full overflow-hidden rounded-md border border-zinc-900  font-bold cursor-pointer select-none transition-all duration-150 bg-emerald-800 text-white px-4 py-3 flex min-h-14 items-center justify-center text-sm tracking-[0.28em] shadow-[0_7px_0_var(--color-zinc-900),0_16px_26px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-12px_16px_rgba(0,0,0,0.14)] active:translate-y-1 active:shadow-[0_2px_0_var(--color-zinc-900),0_6px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.68)] sm:min-h-16 ${
+          className={`group relative w-full overflow-hidden rounded-md border border-zinc-900  font-bold cursor-pointer select-none transition-all duration-150 bg-emerald-800 text-white px-4 py-3 flex min-h-14 items-center justify-center text-sm tracking-[0.28em] shadow-[0_7px_0_var(--color-zinc-900),0_16px_26px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.9),inset_0_-12px_16px_rgba(0,0,0,0.14)] active:translate-y-1 active:shadow-[0_2px_0_var(--color-zinc-900),0_6px_12px_rgba(0,0,0,0.2),inset_0_1px_0_rgba(255,255,255,0.68)] sm:min-h-16 ${
             !hasText || isProcessing ? "cursor-not-allowed" : ""
           }`}
         >
           
-          <div className="pointer-events-none absolute inset-x-1 top-1 h-px rounded-full bg-white/75" />
+          <div className="pointer-events-none absolute inset-x-1 top-1 h-px rounded-full bg-white/30" />
+          <div className="pointer-events-none absolute inset-x-1 top-1 h-px rounded-full bg-white/60 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center" />
           <span>EXECUTE</span>
         </motion.button>
         </div>

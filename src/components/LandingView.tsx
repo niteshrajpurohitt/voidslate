@@ -102,9 +102,10 @@ export function LandingView({ onStart, formattedCount = "0" }: LandingViewProps)
           <div className="rounded-md border border-black/15 shadow-[inset_0_1px_2px_rgba(0,0,0,0.1),0_1px_0_rgba(255,255,255,0.4)] p-0.5 inline-block">
             <button
               onClick={onStart}
-              className="group relative overflow-hidden inline-flex items-center justify-center px-10 py-3.5 rounded border border-zinc-900 font-sans font-bold text-sm sm:text-base tracking-[0.2em] uppercase cursor-pointer select-none transition-all duration-150 bg-emerald-800 hover:bg-emerald-700 text-white shadow-[0_4px_0_#09090b,0_8px_16px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.7)] active:translate-y-0.5 active:shadow-[0_1px_0_#09090b]"
+              className="group relative overflow-hidden inline-flex items-center justify-center px-10 py-3.5 rounded border border-zinc-900 font-sans font-bold text-sm sm:text-base tracking-[0.2em] uppercase cursor-pointer select-none transition-all duration-150 bg-emerald-800 hover:bg-emerald-700 text-white shadow-md active:translate-y-0.5 active:shadow-sm"
             >
-              <div className="pointer-events-none absolute inset-x-1 top-1 h-px rounded-full bg-white/60" />
+              <div className="pointer-events-none absolute inset-x-1 top-1 h-px rounded-full bg-white/30" />
+              <div className="pointer-events-none absolute inset-x-1 top-1 h-px rounded-full bg-white/60 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center" />
               <span>Start Typing</span>
             </button>
           </div>
