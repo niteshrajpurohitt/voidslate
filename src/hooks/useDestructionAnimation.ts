@@ -81,7 +81,7 @@ export function useDestructionAnimation({
 
     let startTime: number | null = null;
 
-    // --- MODE 1: SHRED ANIMATION ---
+    // SHRED ANIMATION 
     if (activeMode === "SHRED") {
       const sliceWidth = 5;
       const strips: MeltParticle[] = [];
@@ -148,7 +148,7 @@ export function useDestructionAnimation({
       animFrameRef.current = requestAnimationFrame(animateShred);
     }
 
-    // --- MODE 2: BURN ANIMATION (Fiery Flame & Ember Dissolve) ---
+    // BURN ANIMATION (Fiery Flame & Ember Dissolve)
     else if (activeMode === "BURN") {
       const imgData = bufferCtx.getImageData(0, 0, canvas.width, canvas.height);
       const embers: EmberParticle[] = [];
@@ -232,7 +232,7 @@ export function useDestructionAnimation({
       animFrameRef.current = requestAnimationFrame(animateBurn);
     }
 
-    // --- MODE 3: DUST ANIMATION ---
+    // DUST ANIMATION
     else if (activeMode === "DUST") {
       const imgData = bufferCtx.getImageData(0, 0, canvas.width, canvas.height);
       const dust: DustParticle[] = [];

@@ -28,7 +28,7 @@ export const Header: React.FC = () => {
           </p>
         </div>
       </div>
-      {/* Right Side: Clean Speaker Grille */}
+      {/* Right Side: Clean Speaker Grill */}
       <div className="flex items-center justify-end self-center">
         <div className="grid grid-cols-4 gap-1 p-1.5 rounded bg-zinc-900/10 border border-zinc-900/20 shadow-[inset_0_1px_2px_rgba(0,0,0,0.15)]">
           {Array.from({ length: 8 }).map((_, i) => (

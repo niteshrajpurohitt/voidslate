@@ -11,9 +11,9 @@ export function LandingView({ onStart, formattedCount = "0" }: LandingViewProps)
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-between px-6 py-8 sm:py-12 select-none overflow-y-auto text-stone-100 font-sans">
 
-      {/* Top Brand Bar */}
+     
       <header className="relative z-10 w-full max-w-4xl flex items-center justify-between py-4">
-        {/* Left: Stacked VOID SLATE Logo (VOID on top, SLATE below) */}
+        {/* Left: Stacked VOID SLATE*/}
         <div className="flex flex-col items-start leading-none font-sekuya text-base sm:text-lg md:text-xl tracking-widest uppercase select-none">
           <span className="text-emerald-700 leading-none">VOID</span>
           <span className="text-[#f4ebd0] leading-none mt-0.5">SLATE</span>
@@ -25,7 +25,7 @@ export function LandingView({ onStart, formattedCount = "0" }: LandingViewProps)
 
         {/* Right: GitHub Icon Link */}
         <a
-          href="about:blank"
+          href="https://github.com/niteshrajpurohitt/voidslate"
           target="_blank"
           rel="noopener noreferrer"
           className="text-stone-400 p-1.5 rounded-none flex items-center justify-center cursor-pointer"
@@ -47,7 +47,7 @@ export function LandingView({ onStart, formattedCount = "0" }: LandingViewProps)
 
       {/* Main Hero Container */}
       <main className="relative z-10 w-full max-w-3xl my-auto py-12 flex flex-col items-center text-center">
-        {/* Main Headline with Sekuya Font */}
+        {/* Main Headline */}
         <motion.h1
           initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -57,7 +57,7 @@ export function LandingView({ onStart, formattedCount = "0" }: LandingViewProps)
           Cast your thoughts into the <span className="text-emerald-600">Void</span>.
         </motion.h1>
 
-        {/* Subtitle with Inter Font Typewriter Blur Effect */}
+        {/* Subtitle*/}
         <motion.p
           initial="hidden"
           animate="visible"

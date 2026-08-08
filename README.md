@@ -4,7 +4,7 @@
 
 **Cast your thoughts into the void**
 
-[Live Demo](https://voidslate.niteshrajpurohit.in) • [GitHub Repository](https://github.com/niteshrajpurohitt/voidslate)
+[Live Demo](https://voidslate.niteshrajpurohit.in)
 
 </div>
 
@@ -48,7 +48,7 @@ Every thought you enter is processed 100% locally in your browser. **Private by 
 - Only the **count** (a single integer) is stored in Redis — never the content of any thought.
 
 ###  6. SPA Routing
-- Clean HTML5 PushState routing (`/` for Landing, `/device` for Console).
+- Clean HTML5 PushState routing (`/` for Landing, `/device` for device).
 - `vercel.json` rewrite rule ensures refreshing `/device` never returns a 404.
 
 ---

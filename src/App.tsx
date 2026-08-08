@@ -20,7 +20,7 @@ export function App() {
 
   // Sync viewMode with browser history using modern HTML5 pushState (Clean URL)
   useEffect(() => {
-    // Immediately strip any # or hash from the URL address bar
+   
     if (window.location.hash) {
       const cleanPath = window.location.pathname === "/device" ? "/device" : "/";
       window.history.replaceState(
@@ -69,7 +69,7 @@ export function App() {
     incrementCount();
   }, [text, isProcessing, playSpringTension, incrementCount]);
 
-  // Trigger mode-specific audio engine & text destruction AFTER card locks in foreground
+  // Trigger mode-specific audio engine & text destruction after display screen locks in foreground
   const handleScreenLaunchSettled = useCallback(() => {
     if (!isProcessing) return;
     setIsScreenSettled(true);
@@ -89,7 +89,7 @@ export function App() {
     playDustSound,
   ]);
 
-  // Complete animation & purge state
+  // Complete animation & dispose state
   const handleAnimationComplete = useCallback(() => {
     setText("");
     setIsProcessing(false);
@@ -111,7 +111,7 @@ export function App() {
         />
       </div>
 
-      {/* True page-level fixed: outside device motion/filter wrapper */}
+      
       {viewMode === "DEVICE" && (
         <div className="fixed top-4 right-4 z-100 select-none">
           <AudioToggle isMuted={isMuted} onToggle={toggleMute} />

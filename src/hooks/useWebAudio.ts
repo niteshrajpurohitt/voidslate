@@ -36,7 +36,7 @@ export function useWebAudio() {
     };
   }, []);
 
-  // 1. Mechanical Keypress Switch Sound — layered clicky MX-Blue style
+  // Mechanical Keypress Switch Sound — layered clicky MX-Blue style
   const playKeyClick = useCallback(() => {
     if (isMuted) return;
     try {
@@ -47,7 +47,7 @@ export function useWebAudio() {
       const pitchVariance = 0.88 + Math.random() * 0.24;   // ±12% pitch
       const volVariance   = 0.82 + Math.random() * 0.22;   // ±11% volume
 
-      // --- Layer 1: Click Snap ---
+      // Click Snap
       // Very short (6ms) high-freq noise burst — the actuator "click"
       const clickSize = Math.floor(ctx.sampleRate * 0.006);
       const clickBuf  = ctx.createBuffer(1, clickSize, ctx.sampleRate);
@@ -71,8 +71,8 @@ export function useWebAudio() {
       clickFilter.connect(clickGain);
       clickGain.connect(ctx.destination);
 
-      // --- Layer 2: Thock Body ---
-      // Bandpass noise ~550Hz — hollow key body resonance
+      // Thock Body 
+      // Bandpass noise ~550Hz
       const thockSize = Math.floor(ctx.sampleRate * 0.032);
       const thockBuf  = ctx.createBuffer(1, thockSize, ctx.sampleRate);
       const thockData = thockBuf.getChannelData(0);
@@ -96,8 +96,8 @@ export function useWebAudio() {
       thockFilter.connect(thockGain);
       thockGain.connect(ctx.destination);
 
-      // --- Layer 3: Key Tone ---
-      // Fast pitch-drop sine — physical stem/spring movement feel
+      // Key Tone 
+      // physical stem/spring movement feel
       const keyOsc  = ctx.createOscillator();
       const keyGain = ctx.createGain();
       keyOsc.type = 'sine';
@@ -120,7 +120,7 @@ export function useWebAudio() {
     }
   }, [getAudioContext, isMuted]);
 
-  // 2. Button Click Sound — original crisp click (separate from typing sound)
+  //  Button Click Sound (separate from typing sound)
   const playSpringTension = useCallback(() => {
     if (isMuted) return;
     try {
@@ -171,7 +171,7 @@ export function useWebAudio() {
     }
   }, [getAudioContext, isMuted]);
 
-  // 3. Shred Destruction Sound (Crisp clean paper tearing slice & mechanical click)
+  // Shred Destruction Sound 
   const playShredSound = useCallback((durationMs: number = 700) => {
     if (isMuted) return;
     try {
@@ -179,7 +179,7 @@ export function useWebAudio() {
       const now = ctx.currentTime;
       const durationSec = durationMs / 1000;
 
-      // 1. Paper Tearing / Slicing Noise (High pass filtered smooth noise sweep)
+      // Paper Tearing / Slicing Noise 
       const bufferSize = ctx.sampleRate * durationSec;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
@@ -211,7 +211,7 @@ export function useWebAudio() {
     }
   }, [getAudioContext, isMuted]);
 
-  // 4. Burn Destruction Sound (Thermal crackle & rising sizzle)
+  // Burn Destruction Sound 
   const playBurnSound = useCallback((durationMs: number = 600) => {
     if (isMuted) return;
     try {
@@ -219,7 +219,7 @@ export function useWebAudio() {
       const now = ctx.currentTime;
       const durationSec = durationMs / 1000;
 
-      // Thermal sizzle / hiss + crackle pops (Highpass noise)
+      // Thermal sizzle / hiss + crackle pops 
       const bufferSize = ctx.sampleRate * durationSec;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
@@ -251,7 +251,7 @@ export function useWebAudio() {
     }
   }, [getAudioContext, isMuted]);
 
-  // 5. Dust Destruction Sound (Deep bass whoosh & wind sweep)
+  // Dust Destruction Sound 
   const playDustSound = useCallback((durationMs: number = 650) => {
     if (isMuted) return;
     try {
@@ -259,7 +259,7 @@ export function useWebAudio() {
       const now = ctx.currentTime;
       const durationSec = durationMs / 1000;
 
-      // 1. Air Noise for Whoosh
+      // Air Noise for Whoosh
       const bufferSize = ctx.sampleRate * durationSec;
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
@@ -282,7 +282,7 @@ export function useWebAudio() {
       noiseGain.gain.linearRampToValueAtTime(0.55, now + durationSec * 0.35);
       noiseGain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
 
-      // Deep sub-bass bass drop oscillator
+      // Deep sub-bass bass drop 
       const subOsc = ctx.createOscillator();
       const subGain = ctx.createGain();
       subOsc.type = 'sine';

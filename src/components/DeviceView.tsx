@@ -79,7 +79,7 @@ export function DeviceView({
 
 
 
-      {/* Tabletop Chassis Frame */}
+      {/* Device Frame */}
       <motion.div
         className="relative min-h-screen w-full overflow-hidden flex items-center justify-center px-2 py-3 sm:px-4 sm:py-8 select-none perspective-[1400px]"
         onMouseMove={handleChassisMouseMove}
@@ -100,7 +100,7 @@ export function DeviceView({
             ease: [0.16, 1, 0.3, 1],
           }}
         >
-          {/* Blurrable Chassis Hardware Layer (Screws, Header, Controls) */}
+          {/* Blurrable Device Hardware Layer (Screws, Header, Controls) */}
           <motion.div
             animate={{
               filter: isProcessing ? "blur(3.5px)" : "blur(0px)",
@@ -121,7 +121,7 @@ export function DeviceView({
             }}
           />
 
-          {/* Screw / Fastener Accents on Chassis Corners */}
+          {/*Fastener Accents on Device Corners */}
           <motion.div
             animate={{ filter: isProcessing ? "blur(3px)" : "blur(0px)" }}
             transition={{ duration: 0.25 }}
@@ -141,7 +141,6 @@ export function DeviceView({
             </div>
           </motion.div>
 
-          {/* 1. Header with Blur effect on execute */}
           <motion.div
             animate={{ filter: isProcessing ? "blur(3px)" : "blur(0px)" }}
             transition={{ duration: 0.25 }}
@@ -184,7 +183,7 @@ export function DeviceView({
             </motion.div>
           </div>
 
-          {/* 3. Controls (Blurs when card pops out) */}
+          {/* Controls (Blurs when card pops out) */}
           <motion.div
             animate={{ filter: isProcessing ? "blur(3.5px)" : "blur(0px)" }}
             transition={{ duration: 0.25 }}

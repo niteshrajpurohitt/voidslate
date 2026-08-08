@@ -87,7 +87,7 @@ export const DisplayScreen: React.FC<DisplayScreenProps> = ({
     [text],
   );
 
-  // Delegate all destruction animation logic to the hook
+ 
   useDestructionAnimation({
     canvasRef,
     animFrameRef,

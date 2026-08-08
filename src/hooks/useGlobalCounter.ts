@@ -40,7 +40,7 @@ export function useGlobalCounter() {
 
   // Triggered when user presses EXECUTE
   const incrementCount = useCallback(async () => {
-    // 1. Optimistic UI update immediately (+1)
+    // Optimistic UI update immediately (+1)
     setCount((prev) => {
       const next = prev + 1;
       try {
@@ -49,7 +49,7 @@ export function useGlobalCounter() {
       return next;
     });
 
-    // 2. POST to API — Redis INCR atomically
+    // POST to API — Redis INCR atomically
     try {
       const res = await fetch("/api/counter", { method: "POST" });
       if (res.ok) {

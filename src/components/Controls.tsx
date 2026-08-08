@@ -52,7 +52,7 @@ export function Controls({
     if (isProcessing || !hasText) return;
     onActionClickSound();
     
-    // 100ms tactile keypress delay so keycap visibly depresses on touch screens before execution
+    //tactile keypress delay so keycap visibly depresses on touch screens before execution
     setTimeout(() => {
       onExecute();
     }, 100);
@@ -61,7 +61,7 @@ export function Controls({
   return (
     <div className="flex min-w-0 flex-col gap-7 pt-3  select-none sm:gap-8">
       <div className="flex min-w-0 flex-col gap-5">
-        {/* Mode Selection Keycaps Group */}
+        {/* Mode Selection Keycaps*/}
         <div className="flex min-w-0 flex-col gap-3">
           <span
             style={{
@@ -115,7 +115,7 @@ export function Controls({
         </div>
       </div>
 
-      {/* Primary Action Button (Field Green TE Keycap) */}
+      {/* Primary Action Button*/}
       <div className="flex min-w-0 flex-col gap-3 w-full items-stretch">
         <span
           style={{

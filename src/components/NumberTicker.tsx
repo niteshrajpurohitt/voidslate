@@ -38,7 +38,7 @@ export const NumberTicker: React.FC<NumberTickerProps> = ({
                 exit={{ y: "-100%", opacity: 0 }}
                 transition={{
                   duration: 0.35,
-                  ease: [0.22, 1, 0.36, 1], // Smooth mechanical deceleration curve
+                  ease: [0.22, 1, 0.36, 1], 
                 }}
                 className="inline-block"
               >
