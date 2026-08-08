@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { type ShredMode } from "./components/DisplayScreen";
 import { LandingView } from "./components/LandingView";
 import { DeviceView } from "./components/DeviceView";

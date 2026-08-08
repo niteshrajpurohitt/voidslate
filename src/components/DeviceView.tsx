@@ -1,5 +1,5 @@
 import React from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { Header } from "./Header";
 import { DisplayScreen } from "./DisplayScreen";
 import { Controls } from "./Controls";

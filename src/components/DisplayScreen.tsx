@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useDestructionAnimation } from "../hooks/useDestructionAnimation";
 
 export type ShredMode = "SHRED" | "BURN" | "DUST";
